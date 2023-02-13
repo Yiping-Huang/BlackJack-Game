@@ -3,13 +3,19 @@ package ui.gamebody.cards;
 import model.Card;
 import model.GameState;
 
+// This class is used to represent the second card on Dealer's hand.
+
 public class DealerCardLabel2 {
     private final GameState gameState;
 
+    // EFFECTS: construct the second dealer card with the given gameState
     public DealerCardLabel2(GameState gameState) {
         this.gameState = gameState;
     }
 
+    // REQUIRES: the second element of dealer cards is not empty
+    // MODIFIES: this
+    // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getDealerCards().getList().get(1);
         String cardDescription;
@@ -34,6 +40,9 @@ public class DealerCardLabel2 {
         }
     }
 
+    // REQUIRES: the second element of dealer cards is not empty
+    // MODIFIES: this
+    // EFFECTS:  display the card description of the second dealer card
     public void display() {
         System.out.println("Dealer Card #2: " + cardAdaptor(gameState));
     }

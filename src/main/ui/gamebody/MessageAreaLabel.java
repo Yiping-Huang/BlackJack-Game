@@ -1,9 +1,15 @@
 package ui.gamebody;
 
+// This class is a game label which is used to display messages to the user as instructions
+
 public class MessageAreaLabel {
 
+    // EFFECTS:  construct a message area label
     public MessageAreaLabel() {}
 
+    //REQUIRES: messageIndex is among [0, 13]
+    // MODIFIES: this
+    // EFFECTS:  display corresponding message according to the given messageIndex
     @SuppressWarnings("methodlength")
     public void display(int messageIndex) {
         System.out.println("\n-------------------------------------");

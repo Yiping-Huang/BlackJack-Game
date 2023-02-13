@@ -3,12 +3,19 @@ package ui;
 import model.GameRecords;
 import model.Player;
 
+// This class represents the display interface of Game Records Panel. This panel display the existing game records.
+
 public class GameRecordsPanel {
 
+    // REQUIRES: gameRecords is not empty
+    // EFFECTS:  construct the game record panel with the given gameRecords and call to display the content
     public GameRecordsPanel(GameRecords gameRecords) {
         displayGameRecords(gameRecords);
     }
 
+    // REQUIRES: gameRecords is not empty
+    // MODIFIES: this
+    // EFFECTS:  display the existing game records followed the time order
     public void displayGameRecords(GameRecords gameRecords) {
         int recordIndex = 1;
         System.out.println("\n-------------------------------------");

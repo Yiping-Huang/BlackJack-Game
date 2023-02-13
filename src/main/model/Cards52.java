@@ -3,9 +3,12 @@ package model;
 import java.util.ArrayList;
 import java.util.Random;
 
+// This class represent a deck of 52 poker cards without jokers
+
 public class Cards52 {
     ArrayList<Card> cards52;
 
+    // EFFECTS: construct a deck of 52 face-up poker cards, 13 cards for each kind of card suit
     public Cards52() {
         cards52 = new ArrayList<>();
         int diamondsCardNum = 1;
@@ -34,6 +37,9 @@ public class Cards52 {
         return cards52;
     }
 
+    // REQUIRES: Cards52 is not empty
+    // MODIFIES: this
+    // EFFECTS:  take a random card out of the deck, remove it from the deck, and return it
     public Card pickRandomCard() {
         Random r = new Random();
         int i = r.nextInt(cards52.size() - 1);

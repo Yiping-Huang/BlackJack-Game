@@ -1,12 +1,12 @@
 package ui;
 
+// This class represent the Main Menu at the start of the Black Jack Game. This is a pop-up menu with different
+// navigation buttons
+
 public class MainMenuPanel {
 
+    // EFFECTS: construct the Main Menu Panel and printout the content
     public MainMenuPanel() {
-        displayMainMenu();
-    }
-
-    public void displayMainMenu() {
         System.out.println("\n-------------------------------------");
         System.out.println("Welcome to the BlackJack Casino!");
         System.out.println("-------------------------------------");
@@ -16,5 +16,4 @@ public class MainMenuPanel {
         System.out.println("\tp -> Player Ranking");
         System.out.println("\te -> Exit Game");
     }
-
 }

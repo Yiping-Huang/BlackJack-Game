@@ -3,13 +3,19 @@ package ui.gamebody.cards;
 import model.Card;
 import model.GameState;
 
+// This class is used to represent the eighth card on Player's hand.
+
 public class PlayerCardLabel8 {
     private final GameState gameState;
 
+    // EFFECTS: construct the eighth player card with the given gameState
     public PlayerCardLabel8(GameState gameState) {
         this.gameState = gameState;
     }
 
+    // REQUIRES: the eighth element of player cards is not empty
+    // MODIFIES: this
+    // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getPlayerCards().getList().get(7);
         String cardDescription;
@@ -34,6 +40,9 @@ public class PlayerCardLabel8 {
         }
     }
 
+    // MODIFIES: this
+    // EFFECTS:  if player has 8 or more cards on hand, display the card description of the eighth player card; if not,
+    // display nothing
     public void display() {
         if (gameState.getPlayerCards().getList().size() >= 8) {
             System.out.println("Player Card #8: " + cardAdaptor(gameState));

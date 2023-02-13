@@ -1,10 +1,14 @@
 package model;
 
+// This class represents a single player which carries its name, the amount of its assets, and the number of round that
+// this player has played in the game
+
 public class Player {
     private String name;
     private int assets;
     private int rounds;
 
+    // EFFECTS: construct a new player with the given name, assets, and rounds
     public Player(String name, int assets, int rounds) {
         this.name = name;
         this.assets = assets;
