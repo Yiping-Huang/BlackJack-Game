@@ -18,7 +18,8 @@ public class PlayerCardsTest {
     @Test
     void testConstructor() {
         assertEquals(playerCards.getList().getClass(), ArrayList.class);
-        assertTrue(playerCards.getList().isEmpty());
+        assertNotNull(playerCards.getList());
+        assertEquals(0, playerCards.getList().size());
     }
 
     @Test

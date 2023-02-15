@@ -34,8 +34,14 @@ public class GameStateTest {
         assertEquals(10, gameState.getPlayerRounds());
         assertEquals(500, gameState.getBettingBox());
         assertEquals(dealerCards, gameState.getDealerCards());
+        assertNotNull(gameState.getDealerCards().getList());
+        assertEquals(3, gameState.getDealerCards().getList().size());
         assertEquals(playerCards, gameState.getPlayerCards());
+        assertNotNull(gameState.getPlayerCards().getList());
+        assertEquals(3, gameState.getPlayerCards().getList().size());
         assertEquals(cardsPool, gameState.getCardsPool());
+        assertNotNull(gameState.getCardsPool().getList());
+        assertEquals(46, gameState.getCardsPool().getList().size());
     }
 
     @Test

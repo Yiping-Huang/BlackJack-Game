@@ -18,7 +18,8 @@ public class GameRecordsTest {
     @Test
     void testConstructor() {
         assertEquals(gameRecords.getList().getClass(), ArrayList.class);
-        assertTrue(gameRecords.getList().isEmpty());
+        assertNotNull(gameRecords.getList());
+        assertEquals(0, gameRecords.getList().size());
     }
 
     @Test
