@@ -8,7 +8,6 @@ public class StopBettingButton {
     public StopBettingButton() {
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the stop-betting button
     public void display() {
         System.out.println("\ts -> Stop Betting");

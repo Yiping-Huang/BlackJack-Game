@@ -14,7 +14,6 @@ public class PlayerCardLabel5 {
     }
 
     // REQUIRES: the fifth element of player cards is not empty
-    // MODIFIES: this
     // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getPlayerCards().getList().get(4);
@@ -40,7 +39,6 @@ public class PlayerCardLabel5 {
         }
     }
 
-    // MODIFIES: this
     // EFFECTS:  if player has 5 or more cards on hand, display the card description of the fifth player card; if not,
     // display nothing
     public void display() {

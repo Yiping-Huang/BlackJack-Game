@@ -12,7 +12,6 @@ public class PlayerCardsCounterLabel {
         this.gameState = gamestate;
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the sum of the face-up cards on player's hand
     public void display() {
         System.out.println("The sum of player's face-up cards: " + gameState.getPlayerCards().sumPlayerCards());

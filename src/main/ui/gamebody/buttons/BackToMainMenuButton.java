@@ -7,7 +7,6 @@ public class BackToMainMenuButton {
     // EFFECTS: construct a back-to-main-menu button
     public BackToMainMenuButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the back-to-main-menu button
     public void display() {
         System.out.println("\tb -> Back to Main Menu");

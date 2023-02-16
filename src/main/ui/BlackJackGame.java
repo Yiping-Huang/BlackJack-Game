@@ -279,7 +279,6 @@ public class BlackJackGame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
     // EFFECTS:  render the sub phase of the initial Dealing Phase if the user encounter the insurance case and also
     // chose to make the insurance; handle different situation including blackjack case, normal case with double, and
     // normal case without double; call for the corresponding input processor or renderer in different situations
@@ -331,7 +330,6 @@ public class BlackJackGame {
         }
     }
 
-    // MODIFIES: this
     // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
     public void renderGamePhase2Helper1(GameState gameState) {
         new PlayerInfoLabel(gameState).display();
@@ -344,7 +342,6 @@ public class BlackJackGame {
         new PlayerCardsCounterLabel(gameState).display();
     }
 
-    // MODIFIES: this
     // EFFECTS:  help the initial Dealing Phase renderer render action elements
     public void renderGamePhase2Helper2() {
         new HitButton().display();
@@ -352,7 +349,6 @@ public class BlackJackGame {
         new StandButton().display();
     }
 
-    // MODIFIES: this
     // EFFECTS:  help the initial Dealing Phase renderer render action elements
     public void renderGamePhase2Helper3() {
         new HitButton().display();
@@ -451,7 +447,6 @@ public class BlackJackGame {
         }
     }
 
-    // MODIFIES: this
     // EFFECTS:  help the Player Recurring Hitting Phase renderer render cards elements
     public void renderAllCardsHelper(GameState gameState) {
         new DealerCardLabel1(gameState).display();
@@ -571,7 +566,6 @@ public class BlackJackGame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
     // EFFECTS:  render The Closing Phase and provide navigation to start new round, save game record, and go back to
     // the main menu
     public void renderGamePhase5(GameState gameState, GameRecords gameRecords,

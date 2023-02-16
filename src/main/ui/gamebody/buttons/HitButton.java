@@ -7,7 +7,6 @@ public class HitButton {
     // EFFECTS: construct a hit button
     public HitButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the hit button
     public void display() {
         System.out.println("\th -> Hit");

@@ -7,7 +7,6 @@ public class AllInButton {
     // EFFECTS: construct a all-in button
     public AllInButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the all-in button
     public void display() {
         System.out.println("\ta -> All In");

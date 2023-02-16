@@ -14,7 +14,6 @@ public class PlayerCardLabel7 {
     }
 
     // REQUIRES: the seventh element of player cards is not empty
-    // MODIFIES: this
     // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getPlayerCards().getList().get(6);
@@ -40,7 +39,6 @@ public class PlayerCardLabel7 {
         }
     }
 
-    // MODIFIES: this
     // EFFECTS:  if player has 7 or more cards on hand, display the card description of the seventh player card; if not,
     // display nothing
     public void display() {

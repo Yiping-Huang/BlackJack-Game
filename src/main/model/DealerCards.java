@@ -37,7 +37,6 @@ public class DealerCards {
         dealerCards.set(1, secondCard);
     }
 
-    // MODIFIES: this
     // EFFECTS:  sum the value of all the cards on Dealer's hand; Poker A's value could be 1 or 11; the exact value of
     // Poker A depends on in which value that the sum of Dealer's cards can be maximized without busting
     public int sumDealerCards() {
@@ -62,7 +61,6 @@ public class DealerCards {
         return finalSum;
     }
 
-    // MODIFIES: this
     // EFFECTS:  sum the value of all the face-up cards on dealer's hand; Poker A's value could be 1 or 11; the exact
     // value of Poker A depends on in which value that the sum of dealer's cards can be maximized without busting
     public int sumFaceUpDealerCards() {
@@ -89,7 +87,6 @@ public class DealerCards {
         return finalSum;
     }
 
-    // MODIFIES: this
     // EFFECTS:  return whether the sum of Dealer's cards is over 21
     public boolean bustOrNot() {
         return this.sumDealerCards() > 21;

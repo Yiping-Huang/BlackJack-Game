@@ -12,7 +12,6 @@ public class PlayerInfoLabel {
         this.gameState = gameState;
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the name, assets, and rounds of current player
     public void display() {
         System.out.println("\n-------------------------------------");

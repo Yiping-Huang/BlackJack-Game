@@ -14,7 +14,6 @@ public class DealerCardLabel2 {
     }
 
     // REQUIRES: the second element of dealer cards is not empty
-    // MODIFIES: this
     // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getDealerCards().getList().get(1);
@@ -41,7 +40,6 @@ public class DealerCardLabel2 {
     }
 
     // REQUIRES: the second element of dealer cards is not empty
-    // MODIFIES: this
     // EFFECTS:  display the card description of the second dealer card
     public void display() {
         System.out.println("Dealer Card #2: " + cardAdaptor(gameState));

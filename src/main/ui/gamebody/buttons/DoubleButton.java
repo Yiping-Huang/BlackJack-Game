@@ -7,7 +7,6 @@ public class DoubleButton {
     // EFFECTS: construct a double button
     public DoubleButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the double button
     public void display() {
         System.out.println("\td -> Double");

@@ -14,7 +14,6 @@ public class PlayerCardLabel1 {
     }
 
     // REQUIRES: the first element of player cards is not empty
-    // MODIFIES: this
     // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getPlayerCards().getList().get(0);
@@ -41,7 +40,6 @@ public class PlayerCardLabel1 {
     }
 
     // REQUIRES: the first element of player cards is not empty
-    // MODIFIES: this
     // EFFECTS:  display the card description of the first player card
     public void display() {
         System.out.println("Player Card #1: " + cardAdaptor(gameState));

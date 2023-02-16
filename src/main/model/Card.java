@@ -28,7 +28,6 @@ public class Card {
         return cardStatus;
     }
 
-    // MODIFIES: this
     // EFFECTS:  if the cardNum is among [1,10], cardValue is the same as cardNum; if the cardNum is larger than 10,
     // cardValue is 10; return cardValue
     public int getCardValue() {

@@ -17,7 +17,6 @@ public class PlayerRankingPanel {
     }
 
     // REQUIRES: gameRecords is not empty
-    // MODIFIES: this
     // EFFECTS:  sort the gameRecords according to the amount of assets of each player, display the result, and give the
     // option to go back to the Main Menu
     public void displayPlayerRanking(GameRecords gameRecords) {

@@ -7,7 +7,6 @@ public class InsuranceButton {
     // EFFECTS: construct an insurance button
     public InsuranceButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the insurance button
     public void display() {
         System.out.println("\ti -> Make an Insurance");

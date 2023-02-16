@@ -8,7 +8,6 @@ public class RaiseBetButton {
     public RaiseBetButton() {
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the raise-bet button
     public void display() {
         System.out.println("\tr -> Raise Bet by $100");

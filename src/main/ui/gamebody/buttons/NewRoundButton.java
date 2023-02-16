@@ -7,7 +7,6 @@ public class NewRoundButton {
     // EFFECTS: construct a new-round button
     public NewRoundButton() {}
 
-    // MODIFIES: this
     // EFFECTS:  display the new-round button
     public void display() {
         System.out.println("\tn -> New Round");

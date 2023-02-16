@@ -28,7 +28,6 @@ public class PlayerCards {
         playerCards.clear();
     }
 
-    // MODIFIES: this
     // EFFECTS:  sum the value of all the cards on Player's hand; Poker A's value could be 1 or 11; the exact value of
     // Poker A depends on in which value that the sum of Player's cards can be maximized without busting
     public int sumPlayerCards() {
@@ -53,7 +52,6 @@ public class PlayerCards {
         return finalSum;
     }
 
-    // MODIFIES: this
     // EFFECTS:  return whether the sum of Player's cards is over 21
     public boolean bustOrNot() {
         return this.sumPlayerCards() > 21;

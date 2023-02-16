@@ -8,7 +8,6 @@ public class MessageAreaLabel {
     public MessageAreaLabel() {}
 
     //REQUIRES: messageIndex is among [0, 13]
-    // MODIFIES: this
     // EFFECTS:  display corresponding message according to the given messageIndex
     @SuppressWarnings("methodlength")
     public void display(int messageIndex) {

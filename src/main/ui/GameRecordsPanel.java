@@ -14,7 +14,6 @@ public class GameRecordsPanel {
     }
 
     // REQUIRES: gameRecords is not empty
-    // MODIFIES: this
     // EFFECTS:  display the existing game records followed the time order
     public void displayGameRecords(GameRecords gameRecords) {
         int recordIndex = 1;

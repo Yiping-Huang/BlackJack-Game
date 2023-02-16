@@ -14,7 +14,6 @@ public class PlayerCardLabel8 {
     }
 
     // REQUIRES: the eighth element of player cards is not empty
-    // MODIFIES: this
     // EFFECTS:  adapt the current card info into real-world description of the card
     public String cardAdaptor(GameState gameState) {
         Card card = gameState.getPlayerCards().getList().get(7);
@@ -40,7 +39,6 @@ public class PlayerCardLabel8 {
         }
     }
 
-    // MODIFIES: this
     // EFFECTS:  if player has 8 or more cards on hand, display the card description of the eighth player card; if not,
     // display nothing
     public void display() {

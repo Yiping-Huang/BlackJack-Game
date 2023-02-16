@@ -8,7 +8,6 @@ public class SaveGameRecordButton {
     public SaveGameRecordButton() {
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the save-game-record button
     public void display() {
         System.out.println("\ts -> Save Game Record");

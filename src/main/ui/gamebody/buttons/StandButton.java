@@ -8,7 +8,6 @@ public class StandButton {
     public StandButton() {
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the stand button
     public void display() {
         System.out.println("\ts -> Stand");

@@ -12,7 +12,6 @@ public class BettingAreaLabel {
         this.gameState = gameState;
     }
 
-    // MODIFIES: this
     // EFFECTS:  display the amount of money in the betting box
     public void display() {
         System.out.println("-------------------------------------");
