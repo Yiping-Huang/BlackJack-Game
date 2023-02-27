@@ -1,10 +1,15 @@
 package ui;
 
 import model.*;
+import persistence.JsonReader;
+import persistence.JsonWriter;
 import ui.gamebody.*;
 import ui.gamebody.buttons.*;
 import ui.gamebody.cards.*;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 // This is the cardinal ui class that manage the operation of the whole BlackJack Game. The game will start with a
@@ -26,8 +31,18 @@ public class BlackJackGame {
         panelIndex = 0;
         input = new Scanner(System.in);
         input.useDelimiter("\n");
-        gameRecords = new GameRecords();
-        renderNavigation(placeHolder, gameRecords, panelIndex);
+
+        try {
+            String fileContent = new String(Files.readAllBytes(Paths.get("./data/gameRecords.json")));
+            if (fileContent.trim().isEmpty()) {
+                gameRecords = new GameRecords();
+            } else {
+                gameRecords = new JsonReader("./data/gameRecords.json").getGameRecords();
+            }
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // REQUIRES: panelIndex is an int among [0, 6]
@@ -136,10 +151,15 @@ public class BlackJackGame {
     // REQUIRES: recordIndex is smaller than or equal to the length of the game records list
     // MODIFIES: this
     // EFFECTS:  process the input from the Game Record page, delete the game record according to the input, and send
-    // user back to the previous Game Records Panel
+    // user back to the main menu if there is no record left or send user back to the previous Game Records Panel
     public void processInputDeleteGameRecords(int recordIndex) {
-        panelIndex = 2;
+        if (gameRecords.getList().size() <= 1) {
+            panelIndex = 0;
+        } else {
+            panelIndex = 2;
+        }
         gameRecords.deleteRecord(recordIndex);
+        new JsonWriter(gameRecords,"./data/gameRecords.json").write();
         renderNavigation(placeHolder, gameRecords, panelIndex);
     }
 
@@ -566,11 +586,20 @@ public class BlackJackGame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // EFFECTS:  render The Closing Phase and provide navigation to start new round, save game record, and go back to
+    // EFFECTS:  if user still have assets, render the Closing Phase and provide navigation to start new round, save
+    // game record, and go back to the main menu; if user lost all assets and user start the game by loading a game
+    // record, delete this record, render the Closing Phase and provide navigation to back to the main menu; if user
+    // started a new game and lost all assets, just render the Closing Phase and provide the navigation to go back to
     // the main menu
     public void renderGamePhase5(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
-        if (gameState.getPlayerAssets() == 0) {
+        if (gameState.getPlayerAssets() == 0 && loadedGameRecord) {
+            new MessageAreaLabel().display(8);
+            new PlayerInfoLabel(gameState).display();
+            renderAllCardsHelper(gameState);
+            gameRecords.deleteRecord(currentGameRecordIndex);
+            new JsonWriter(gameRecords,"./data/gameRecords.json").write();
+        } else if (gameState.getPlayerAssets() == 0) {
             new MessageAreaLabel().display(8);
             new PlayerInfoLabel(gameState).display();
             renderAllCardsHelper(gameState);
@@ -598,9 +627,11 @@ public class BlackJackGame {
             renderGamePhase0(currentPlayer, gameRecords, loadedGameRecord, currentGameRecordIndex);
         } else if (command.equals("s") && loadedGameRecord) {
             gameRecords.saveOldRecord(currentGameRecordIndex, currentPlayer);
+            new JsonWriter(gameRecords,"./data/gameRecords.json").write();
             renderGamePhase5(gameState, gameRecords, true, currentGameRecordIndex);
         } else if (command.equals("s")) {
             gameRecords.addRecord(currentPlayer);
+            new JsonWriter(gameRecords,"./data/gameRecords.json").write();
             currentGameRecordIndex = 0;
             renderGamePhase5(gameState, gameRecords, true, currentGameRecordIndex);
         } else if (command.equals("b")) {

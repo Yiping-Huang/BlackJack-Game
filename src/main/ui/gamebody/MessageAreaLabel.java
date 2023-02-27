@@ -7,7 +7,7 @@ public class MessageAreaLabel {
     // EFFECTS:  construct a message area label
     public MessageAreaLabel() {}
 
-    //REQUIRES: messageIndex is among [0, 13]
+    // REQUIRES: messageIndex is among [0, 13]
     // EFFECTS:  display corresponding message according to the given messageIndex
     @SuppressWarnings("methodlength")
     public void display(int messageIndex) {
