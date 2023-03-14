@@ -9,8 +9,8 @@ current knowledge of Java.Swing. I personally also like playing Blackjack game.
 ## User Stories
 In the context of a Blackjack application:
 - As a user, I want to be able to set up a player profile and save my game progress to the game records
-- As a user, I want to be able to load the game progress that I choose from the game records
-- As a user, I want to be able to see the ranking of different players on the game records
+- As a user, I want to be able to load the game record that I choose from the game records list
+- As a user, I want to be able to delete the game record that I choose from the game records list
 - As a user, I want to be able to hit for another card in addition to my original cards
 - As a user, I want to be able to choose ***double down*** which means hit for another card and double my initial bet
 - As a user, I want to be able to choose ***all in*** which means bet all of my current chips

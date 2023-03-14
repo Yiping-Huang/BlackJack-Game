@@ -3,10 +3,24 @@ package ui;
 import model.*;
 import persistence.JsonReader;
 import persistence.JsonWriter;
+import ui.background.BackgroundColorPanel;
+import ui.background.JokerJLabel;
+import ui.background.JokerRevJLabel;
 import ui.gamebody.*;
-import ui.gamebody.buttons.*;
+import ui.gamebody.operationbuttons.*;
 import ui.gamebody.cards.*;
+import ui.navigation.*;
+import ui.navigation.ExitGameJButton;
+import ui.navigation.backtomainmenu.BackToMainMenuJButton;
+import ui.navigation.playerranking.*;
+import ui.navigation.resumegame.*;
+import ui.navigation.startnewgame.CreatePlayerJTextField;
+import ui.navigation.startnewgame.CreatePlayerTitleJLabel;
+import ui.navigation.StartNewGameJButton;
+import ui.navigation.startnewgame.SubmitNewPlayerJButton;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,20 +32,115 @@ import java.util.Scanner;
 // start and these pop-up panels will be closed. The cards game will be rendered on the main game frame. There are
 // buttons on the different panels and the main game frame to help user navigate and also choose game action.
 
-public class BlackJackGame {
+public class BlackJackGame extends JFrame {
     private static int panelIndex;
     private final Scanner input;
-    private final Player placeHolder = new Player("null", 0, 0);
     private static GameRecords gameRecords;
+    private static boolean hasClickedRecord;
     private static int currentGameRecordIndex;
+    private static boolean loadedGameRecord;
+    private final Player placeHolder = new Player("null", 0, 0);
+    private static Player currentPlayer;
     private GameState gameState;
+    private GameState gameStatePlaceHolder
+            = new GameState("null", 0, 0, 0,
+            new DealerCards(), new PlayerCards(), new Cards52());
+    public static final Color colorBackground = new Color(51,153,51);
+    private final Color listBackground = new Color(255, 255, 224);
+
+    // Main Menu Components
+    private final StartNewGameJButton sngJButton;
+    private final ResumeGameJButton rgJButton;
+    private final PlayerRankingJButton prJButton;
+    private final ExitGameJButton egJButton;
+    private final MainMenuHeaderJLabel mmtJLabel;
+    private final MainMenuJLabel mmJLabel;
+    // Start New Game Components
+    private final CreatePlayerTitleJLabel cptJLabel;
+    private final CreatePlayerJTextField cpJTextField;
+    private final SubmitNewPlayerJButton snpJButton;
+    // Resume Game Components
+    private static DefaultListModel<String> gameRecordsModel;
+    private static JList<String> gameRecordsList;
+    private final GameRecordsJLabel grJLabel;
+    private final LoadRecordJButton lrJButton;
+    private final DeleteRecordJButton drJButton;
+    // Player Ranking Components
+    private static DefaultListModel<String> playerRankingModel;
+    private static JList<String> playerRankingList;
+    private final PlayerRankingJLabel prJLabel;
+    private final PlayerRankingTitleJLabel prtJLabel;
+    // Background Components
+    private final JokerJLabel jokerJLabel;
+    private final JokerRevJLabel jokerRevJLabel;
+    // Back to Main Menu Component
+    private final BackToMainMenuJButton btmJButton;
+    // Game Phase Buttons and Information Components
+    private static BettingAreaJLabel bettingAreaJLabel;
 
     // EFFECTS: constructs BlackJackGame and initialize the input and the game records
+    @SuppressWarnings("methodlength")
     public BlackJackGame() {
-        panelIndex = 0;
-        input = new Scanner(System.in);
-        input.useDelimiter("\n");
+        // Frame title setting
+        super("Blackjack Game");
+        // Add Main Menu Components
+        mmtJLabel = new MainMenuHeaderJLabel();
+        add(mmtJLabel);
+        sngJButton = new StartNewGameJButton(485, 350, 350);
+        add(sngJButton);
+        rgJButton = new ResumeGameJButton(485, 450, 450);
+        add(rgJButton);
+        prJButton = new PlayerRankingJButton(485, 550, 550);
+        add(prJButton);
+        egJButton = new ExitGameJButton(485, 650, 650);
+        add(egJButton);
+        // Add Start New Game Components
+        cptJLabel = new CreatePlayerTitleJLabel();
+        add(cptJLabel);
+        cpJTextField = new CreatePlayerJTextField();
+        add(cpJTextField);
+        snpJButton = new SubmitNewPlayerJButton(485, 430, 430);
+        add(snpJButton);
+        // Add Resume Game Components
+        grJLabel = new GameRecordsJLabel();
+        add(grJLabel);
+        lrJButton = new LoadRecordJButton(485, 520, 520);
+        add(lrJButton);
+        drJButton = new DeleteRecordJButton(485, 595, 595);
+        add(drJButton);
+        // Add Player Ranking Components
+        prtJLabel = new PlayerRankingTitleJLabel();
+        add(prtJLabel);
+        prJLabel = new PlayerRankingJLabel();
+        add(prJLabel);
+        // Add Back to Main Menu Component
+        btmJButton = new BackToMainMenuJButton(485, 670, 670);
+        add(btmJButton);
+        // Add Main Menu Board which is also the background board for the whole navigation stages
+        mmJLabel = new MainMenuJLabel();
+        add(mmJLabel);
+        // Add Right Side Components of the Game Phase
+        bettingAreaJLabel = new BettingAreaJLabel(gameStatePlaceHolder);
+        add(bettingAreaJLabel);
+        // Add Background Components
+        jokerJLabel = new JokerJLabel();
+        add(jokerJLabel);
+        jokerRevJLabel = new JokerRevJLabel();
+        add(jokerRevJLabel);
+        BackgroundColorPanel bgc = new BackgroundColorPanel();
+        add(bgc);
 
+        // Frame setting
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(1470,842);
+        setBackground(colorBackground);
+        centreOnScreen();
+        setVisible(true);
+
+        // Game Setting
+        panelIndex = 0;
+        input = new Scanner(System.in); // To be delete !!!!!!!!!!!!!!!!!!!
+        input.useDelimiter("\n"); // To be delete !!!!!!!!!!!!!!!!!!!
         try {
             String fileContent = new String(Files.readAllBytes(Paths.get("./data/gameRecords.json")));
             if (fileContent.trim().isEmpty()) {
@@ -39,10 +148,17 @@ public class BlackJackGame {
             } else {
                 gameRecords = new JsonReader("./data/gameRecords.json").getGameRecords();
             }
-            renderNavigation(placeHolder, gameRecords, panelIndex);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        renderNavigation(placeHolder, gameRecords, panelIndex);
+    }
+
+    // EFFECTS; make the BlackJackGame JFrame centered on the screen
+    private void centreOnScreen() {
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2);
     }
 
     // REQUIRES: panelIndex is an int among [0, 6]
@@ -55,122 +171,203 @@ public class BlackJackGame {
     @SuppressWarnings("methodlength")
     public void renderNavigation(Player player, GameRecords gameRecords, int panelIndex) {
         if (panelIndex == 0) {
-            new MainMenuPanel();
-            processInputMainMenu(input.next().toLowerCase());
+            // Main Menu Components
+            mmtJLabel.setStatus("Showing");
+            sngJButton.setStatus("Showing");
+            rgJButton.setStatus("Showing");
+            prJButton.setStatus("Showing");
+            egJButton.setStatus("Showing");
+            // Start New Game Components
+            cptJLabel.setStatus("Hiding");
+            cpJTextField.setStatus("Hiding");
+            snpJButton.setStatus("Hiding");
+            // Resume Game Components
+            grJLabel.setStatus("Hiding");
+            lrJButton.setStatus("Hiding");
+            drJButton.setStatus("Hiding");
+            // Player Ranking Components
+            prtJLabel.setStatus("Hiding");
+            prJLabel.setStatus("Hiding");
+            // Back to Main Menu Component
+            btmJButton.setStatus("Hiding");
+            // Call for the processor
+            processInputMainMenu();
         } else if (panelIndex == 1) {
-            new CreatePlayerPanel();
-            processInputCreatePlayer(input.next());
+            // Hide the components of previous navigation stage
+            mmtJLabel.setStatus("Hiding");
+            sngJButton.setStatus("Hiding");
+            rgJButton.setStatus("Hiding");
+            prJButton.setStatus("Hiding");
+            egJButton.setStatus("Hiding");
+            // Display the Start New Game stage components
+            cpJTextField.setText("");
+            cptJLabel.setStatus("Showing");
+            cpJTextField.setStatus("Showing");
+            snpJButton.setStatus("Showing");
+            btmJButton.setStatus("Showing");
+            // Call for the processor
+            processInputCreatePlayer();
         } else if (panelIndex == 2 && gameRecords.getList().isEmpty()) {
-            System.out.println("\nThere is no player on record.\n");
+            // Go back to the Main Menu
             BlackJackGame.panelIndex = 0;
             renderNavigation(placeHolder, gameRecords, BlackJackGame.panelIndex);
         } else if (panelIndex == 2) {
-            new GameRecordsPanel(gameRecords);
-            processInputGameRecordsOptions(input.next().toLowerCase());
+            // Set up the Game Record Board
+            grJLabel.removeAll();
+            gameRecordsModel = new GameRecordsModel().getGameRecordsModel(gameRecords);
+            gameRecordsList = new JList<>(gameRecordsModel);
+            Font font = new Font("Time New Roman", Font.PLAIN,18);
+            gameRecordsList.setFont(font);
+            gameRecordsList.setBackground(listBackground);
+            gameRecordsList.setSize(500, 380);
+            GameRecordsJScrollPanel grs = new GameRecordsJScrollPanel(gameRecordsList);
+            grJLabel.add(grs);
+            // Hide the components of previous navigation stage
+            mmtJLabel.setStatus("Hiding");
+            sngJButton.setStatus("Hiding");
+            rgJButton.setStatus("Hiding");
+            prJButton.setStatus("Hiding");
+            egJButton.setStatus("Hiding");
+            // Display the Resume Game stage components
+            grJLabel.setStatus("Showing");
+            lrJButton.setStatus("Showing");
+            drJButton.setStatus("Showing");
+            btmJButton.setStatus("Showing");
+            hasClickedRecord = false;
+            processInputGameRecordsOptions();
+        } else if (panelIndex == 3 && gameRecords.getList().isEmpty()) {
+            // Go back to the Main Menu
+            BlackJackGame.panelIndex = 0;
+            renderNavigation(placeHolder, gameRecords, BlackJackGame.panelIndex);
         } else if (panelIndex == 3) {
-            new PlayerRankingPanel(gameRecords);
-            processInputPlayerRanking(input.next().toLowerCase());
+            // Set up the Player Ranking Board
+            prJLabel.removeAll();
+            playerRankingModel = new PlayerRankingModel().getPlayerRankingModel(gameRecords);
+            playerRankingList = new JList<>(playerRankingModel);
+            Font font = new Font("Time New Roman", Font.PLAIN,18);
+            playerRankingList.setFont(font);
+            playerRankingList.setBackground(listBackground);
+            playerRankingList.setSize(500,600);
+            PlayerRankingJScrollPanel prs = new PlayerRankingJScrollPanel(playerRankingList);
+            prJLabel.add(prs);
+            // Hide the components of previous navigation stage
+            mmtJLabel.setStatus("Hiding");
+            sngJButton.setStatus("Hiding");
+            rgJButton.setStatus("Hiding");
+            prJButton.setStatus("Hiding");
+            egJButton.setStatus("Hiding");
+            // Display the Player Ranking stage components
+            prtJLabel.setStatus("Showing");
+            prJLabel.setStatus("Showing");
+            btmJButton.setStatus("Showing");
+            processInputPlayerRanking();
         } else if (panelIndex == 4 && !gameRecords.getList().contains(player)) {
+            // Moving down the components of Start New game navigation stage
+            cptJLabel.setStatus("Moving Down");
+            cpJTextField.setStatus("Moving Down");
+            snpJButton.setStatus("Moving Down");
+            btmJButton.setStatus("Moving Down");
+            mmJLabel.setStatus("Moving Down");
+            // Moving Right Background Component
+            jokerRevJLabel.setStatus("Moving Right");
+            // Go to the Game Phase 0
             renderGamePhase0(player, gameRecords, false, currentGameRecordIndex);
         } else if (panelIndex == 4 && gameRecords.getList().contains(player)) {
+            // Moving down the components of Resume Game navigation stage
+            mmJLabel.setStatus("Moving Down");
+            grJLabel.setStatus("Moving Down");
+            lrJButton.setStatus("Moving Down");
+            drJButton.setStatus("Moving Down");
+            btmJButton.setStatus("Moving Down");
+            hasClickedRecord = false;
+            // Moving Right Background Component
+            jokerRevJLabel.setStatus("Moving Right");
+            // Go to the Game Phase 0
             renderGamePhase0(player, gameRecords, true, currentGameRecordIndex);
-        } else if (panelIndex == 5) {
-            new LoadRecordPanel();
-            currentGameRecordIndex = Integer.parseInt(input.next()) - 1;
-            processInputLoadGameRecords(currentGameRecordIndex);
-        } else if (panelIndex == 6) {
-            new DeleteRecordPanel();
-            int deleteGameRecordIndex = Integer.parseInt(input.next()) - 1;
-            processInputDeleteGameRecords(deleteGameRecordIndex);
         }
     }
 
-    // REQUIRES: command is one of "s", "r", "p", and "e"
     // MODIFIES: this
     // EFFECTS:  process the input from the Main Menu page and generate the corresponding panel index; call the
     // navigation renderer with the panel index or end the game
-    public void processInputMainMenu(String command) {
-        switch (command) {
-            case "s":
-                panelIndex = 1;
-                renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-            case "r":
-                panelIndex = 2;
-                renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-            case "p":
-                panelIndex = 3;
-                renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-            case "e":
-                System.out.println("\n-------------------------------------");
-                System.out.println("Thank you for playing!");
-                System.out.println("-------------------------------------\n");
-                break;
-        }
+    public void processInputMainMenu() {
+        sngJButton.addActionListener(e -> {
+            panelIndex = 1;
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        });
+        rgJButton.addActionListener(e -> {
+            panelIndex = 2;
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        });
+        prJButton.addActionListener(e -> {
+            panelIndex = 3;
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        });
+        egJButton.addActionListener(e -> System.exit(0));
     }
 
     // MODIFIES: this
     // EFFECTS: process the input from the Create Player page, create a new Player with the input string as its name,
     // and start a new game with this new player
-    public void processInputCreatePlayer(String command) {
-        panelIndex = 4;
-        renderNavigation(new Player(command,1000, 0), gameRecords, panelIndex);
+    public void processInputCreatePlayer() {
+        snpJButton.addActionListener(e -> {
+            if (!cpJTextField.getText().equals("")) {
+                panelIndex = 4;
+                cpJTextField.addActionListener(ee -> currentPlayer
+                        = new Player(cpJTextField.getText(), 1000, 0));
+                renderNavigation(currentPlayer, gameRecords, panelIndex);
+            }
+        });
+        btmJButton.addActionListener(e -> {
+            panelIndex = 0;
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        });
     }
 
     // REQUIRES: command is one of "l", "d", and "b"
     // MODIFIES: this
     // EFFECTS: process input for the Game Record page; if command is "l", render Load Record Panel; if command is
     // "d", render Delete Record Panel; if command is "b", send user back to the main menu
-    public void processInputGameRecordsOptions(String command) {
-        switch (command) {
-            case "l":
-                panelIndex = 5;
+    @SuppressWarnings("methodlength")
+    public void processInputGameRecordsOptions() {
+        gameRecordsList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                hasClickedRecord = true;
+                currentGameRecordIndex = gameRecordsList.getSelectedIndex();
+            }
+        });
+        lrJButton.addActionListener(e -> {
+            if (hasClickedRecord) {
+                panelIndex = 4;
+                renderNavigation(gameRecords.getRecord(currentGameRecordIndex), gameRecords, panelIndex);
+            }
+        });
+        drJButton.addActionListener(e -> {
+            if (hasClickedRecord) {
+                if (gameRecords.getList().size() <= 1) {
+                    panelIndex = 0;
+                } else {
+                    panelIndex = 2;
+                }
+                gameRecords.deleteRecord(currentGameRecordIndex);
+                new JsonWriter(gameRecords,"./data/gameRecords.json").write();
                 renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-            case "d":
-                panelIndex = 6;
-                renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-            case "b":
-                panelIndex = 0;
-                renderNavigation(placeHolder, gameRecords, panelIndex);
-                break;
-        }
-    }
-
-    // REQUIRES: recordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  process the input from the Game Record page and load the game record according to the input
-    public void processInputLoadGameRecords(int recordIndex) {
-        panelIndex = 4;
-        renderNavigation(gameRecords.getRecord(recordIndex), gameRecords, panelIndex);
-    }
-
-    // REQUIRES: recordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  process the input from the Game Record page, delete the game record according to the input, and send
-    // user back to the main menu if there is no record left or send user back to the previous Game Records Panel
-    public void processInputDeleteGameRecords(int recordIndex) {
-        if (gameRecords.getList().size() <= 1) {
+            }
+        });
+        btmJButton.addActionListener(e -> {
             panelIndex = 0;
-        } else {
-            panelIndex = 2;
-        }
-        gameRecords.deleteRecord(recordIndex);
-        new JsonWriter(gameRecords,"./data/gameRecords.json").write();
-        renderNavigation(placeHolder, gameRecords, panelIndex);
+            renderNavigation(placeHolder, gameRecords, panelIndex);
+        });
     }
 
     // REQUIRES: command is "b"
     // MODIFIES: this
     // EFFECTS:  process input from the Player Ranking page and send user back to the Main Menu Panel
-    public void processInputPlayerRanking(String command) {
-        if (command.equals("b")) {
+    public void processInputPlayerRanking() {
+        btmJButton.addActionListener(e -> {
             panelIndex = 0;
             renderNavigation(placeHolder, gameRecords, panelIndex);
-        }
+        });
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
@@ -182,11 +379,12 @@ public class BlackJackGame {
                 0, new DealerCards(), new PlayerCards(), new Cards52());
         new MessageAreaLabel().display(0);
         new PlayerInfoLabel(gameState).display();
-        new BettingAreaLabel(gameState).display();
+        bettingAreaJLabel = new BettingAreaJLabel(gameState);
+        bettingAreaJLabel.setStatus("Delay Showing");
         new RaiseBetButton().display();
         new AllInButton().display();
-        processInputGamePhase0(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex,
-                input.next().toLowerCase());
+//        processInputGamePhase0(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex,
+//                input.next().toLowerCase());
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
@@ -215,7 +413,7 @@ public class BlackJackGame {
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
         new MessageAreaLabel().display(0);
         new PlayerInfoLabel(gameState).display();
-        new BettingAreaLabel(gameState).display();
+        new BettingAreaJLabel(gameState);
         new RaiseBetButton().display();
         new AllInButton().display();
         new StopBettingButton().display();
@@ -353,7 +551,7 @@ public class BlackJackGame {
     // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
     public void renderGamePhase2Helper1(GameState gameState) {
         new PlayerInfoLabel(gameState).display();
-        new BettingAreaLabel(gameState).display();
+        new BettingAreaJLabel(gameState);
         new DealerCardLabel1(gameState).display();
         new DealerCardLabel2(gameState).display();
         new DealerCardsCounterLabel(gameState).display();
@@ -448,7 +646,7 @@ public class BlackJackGame {
         } else if (gameState.getPlayerCards().getList().size() >= 5) {
             new MessageAreaLabel().display(9);
             new PlayerInfoLabel(gameState).display();
-            new BettingAreaLabel(gameState).display();
+            new BettingAreaJLabel(gameState);
             renderAllCardsHelper(gameState);
             new HitButton().display();
             new WithdrawButton().display();
@@ -458,7 +656,7 @@ public class BlackJackGame {
             renderBlackJackPhase(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         } else {
             new PlayerInfoLabel(gameState).display();
-            new BettingAreaLabel(gameState).display();
+            new BettingAreaJLabel(gameState);
             renderAllCardsHelper(gameState);
             new HitButton().display();
             new StandButton().display();
