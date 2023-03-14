@@ -47,6 +47,7 @@ public class BlackJackGame extends JFrame {
             new DealerCards(), new PlayerCards(), new Cards52());
     public static final Color colorBackground = new Color(51,153,51);
     private final Color listBackground = new Color(255, 255, 224);
+    private final int num = 1;
 
     // Main Menu Components
     private final StartNewGameJButton sngJButton;
