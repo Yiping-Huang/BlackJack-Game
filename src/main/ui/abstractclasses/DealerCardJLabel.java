@@ -70,7 +70,6 @@ public abstract class DealerCardJLabel extends JLabel implements ActionListener 
         }
     }
 
-    @SuppressWarnings("methodlength")
     @Override
     public void actionPerformed(ActionEvent e) {
         if (corY <= 840 && corY > 0 && status.equals("Moving Up")) {

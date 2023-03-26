@@ -436,6 +436,7 @@ public class BlackJackGame extends JFrame {
         this.loadedGameRecord = loadedGameRecord;
         this.currentGameRecordIndex = currentGameRecordIndex;
         raiseBetJButton.addActionListener(e -> {
+            playSoundEffect();
             if (this.gameState.getPlayerAssets() >= 100 && !played) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + 100);
                 this.gameState.setPlayerAssets(this.gameState.getPlayerAssets() - 100);
@@ -448,6 +449,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         allInButton.addActionListener(e -> {
+            playSoundEffect();
             if (this.gameState.getPlayerAssets() >= 100 && !played) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
                 this.gameState.setPlayerAssets(0);
@@ -518,6 +520,7 @@ public class BlackJackGame extends JFrame {
         this.loadedGameRecord = loadedGameRecord;
         this.currentGameRecordIndex = currentGameRecordIndex;
         raiseBetJButton.addActionListener(e -> {
+            playSoundEffect();
             if (this.gameState.getPlayerAssets() > 100) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + 100);
                 this.gameState.setPlayerAssets(this.gameState.getPlayerAssets() - 100);
@@ -529,14 +532,18 @@ public class BlackJackGame extends JFrame {
             }
         });
         allInButton.addActionListener(e -> {
+            playSoundEffect();
             if (this.gameState.getPlayerAssets() >= 100) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
                 this.gameState.setPlayerAssets(0);
                 renderGamePhase2(this.gameState, this.gameRecords, this.loadedGameRecord, this.currentGameRecordIndex);
             }
         });
-        stopBettingJButton.addActionListener(e -> renderGamePhase2(this.gameState, this.gameRecords,
-                this.loadedGameRecord, this.currentGameRecordIndex));
+        stopBettingJButton.addActionListener(e -> {
+            playSoundEffect();
+            renderGamePhase2(this.gameState, this.gameRecords,
+                    this.loadedGameRecord, this.currentGameRecordIndex);
+        });
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
@@ -819,6 +826,7 @@ public class BlackJackGame extends JFrame {
         int changedBettingBox = 2 * bettingBox;
 
         hitJButton.addActionListener(e -> {
+            playSoundEffect();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), gameState.getPlayerAssets(),
                     gameState.getPlayerRounds(), gameState.getBettingBox(), gameState.getDealerCards(),
@@ -829,6 +837,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase3(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         doubleJButton.addActionListener(e -> {
+            playSoundEffect();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), changedAssets, gameState.getPlayerRounds(),
                     changedBettingBox, gameState.getDealerCards(), playerCards, cardsPool);
@@ -838,6 +847,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase4(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         standJButton.addActionListener(e -> {
+            playSoundEffect();
             if (dealerCards.sumDealerCards() < 17) {
                 dealerCards.addDealerCard(cardsPool.pickRandomCard());
             } else {
@@ -854,6 +864,7 @@ public class BlackJackGame extends JFrame {
     public void processInputInsuranceStage(GameState gameState, GameRecords gameRecords, boolean loadedGameRecord,
                                        int currentGameRecordIndex) {
         insuranceJButton.addActionListener(e -> {
+            playSoundEffect();
             removeMessageAreaHelper();
             if (gameState.getDealerCards().sumDealerCards() == 21) {
                 gameState.setPlayerAssets(gameState.getPlayerAssets() + 2 * gameState.getBettingBox());
@@ -867,6 +878,7 @@ public class BlackJackGame extends JFrame {
             renderAfterInsurancePhase(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         skipInsuranceJButton.addActionListener(e -> {
+            playSoundEffect();
             removeMessageAreaHelper();
             addMessageAreaShowingHelper(1);
             removeInitialCardsAndCountersHelper();
@@ -936,6 +948,7 @@ public class BlackJackGame extends JFrame {
         Cards52 cardsPool = gameState.getCardsPool();
 
         hitJButton.addActionListener(e -> {
+            playSoundEffect();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), gameState.getPlayerAssets(),
                     gameState.getPlayerRounds(), gameState.getBettingBox(), gameState.getDealerCards(),
@@ -946,6 +959,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase3(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         standJButton.addActionListener(e -> {
+            playSoundEffect();
             if (dealerCards.sumDealerCards() < 17) {
                 dealerCards.addDealerCard(cardsPool.pickRandomCard());
             } else {
@@ -957,6 +971,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase4(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         withdrawJButton.addActionListener(e -> {
+            playSoundEffect();
             removeMessageAreaHelper();
             addMessageAreaShowingHelper(10);
             gameState.setPlayerAssets(gameState.getPlayerAssets()
@@ -1122,6 +1137,7 @@ public class BlackJackGame extends JFrame {
         Player currentPlayer = new Player(gameState.getPlayerName(),
                 gameState.getPlayerAssets(),gameState.getPlayerRounds() + 1);
         newRoundJButton.addActionListener(e -> {
+            playSoundEffect();
             if (fromPhase2) {
                 removeInitialCardsAndCountersHelper();
             } else {
@@ -1134,6 +1150,7 @@ public class BlackJackGame extends JFrame {
                     true, true);
         });
         saveGameRecordJButton.addActionListener(e -> {
+            playSoundEffect();
             if (loadedGameRecord) {
                 gameRecords.saveOldRecord(currentGameRecordIndex, currentPlayer);
                 new JsonWriter(gameRecords,"./data/gameRecords.json").write();
@@ -1162,6 +1179,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         mainMenuJButton.addActionListener(e -> {
+            playSoundEffect();
             this.gameRecords = gameRecords;
             if (fromPhase2) {
                 removeInitialCardsAndCountersHelper();

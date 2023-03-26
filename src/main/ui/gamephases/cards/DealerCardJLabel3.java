@@ -16,8 +16,6 @@ public class DealerCardJLabel3 extends JLabel implements ActionListener {
     private int corY;
     private int velY = 10;
     private final Image cardImg;
-    private int counter = 0;
-    private int counterMax = 0;
     private final Timer timer = new Timer(10, this);
 
     // EFFECTS: construct the third dealer card with the given gameState
@@ -53,10 +51,6 @@ public class DealerCardJLabel3 extends JLabel implements ActionListener {
         status = s;
     }
 
-    public void setCounterMax(int max) {
-        counterMax = max;
-    }
-
     public void stopTimer() {
         timer.stop();
     }
@@ -71,7 +65,6 @@ public class DealerCardJLabel3 extends JLabel implements ActionListener {
         }
     }
 
-    @SuppressWarnings("methodlength")
     @Override
     public void actionPerformed(ActionEvent e) {
         if (corY <= 840 && corY > 0 && status.equals("Moving Up")) {
@@ -90,11 +83,6 @@ public class DealerCardJLabel3 extends JLabel implements ActionListener {
         } else if (status.equals("Hiding")) {
             setVisible(false);
             repaint();
-        } else if (counter >= 0 && counterMax > counter && status.equals("Delay Moving Down")) {
-            counter += 1;
-        } else if (counter == counterMax && status.equals("Delay Moving Down")) {
-            counter = 0;
-            status = "Moving Down";
         }
     }
 }

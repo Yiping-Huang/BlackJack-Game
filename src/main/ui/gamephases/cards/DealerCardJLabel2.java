@@ -66,7 +66,6 @@ public class DealerCardJLabel2 extends JLabel implements ActionListener {
         }
     }
 
-    @SuppressWarnings("methodlength")
     @Override
     public void actionPerformed(ActionEvent e) {
         int counterMax = 20;
