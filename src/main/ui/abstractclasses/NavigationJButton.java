@@ -11,15 +11,15 @@ public abstract class NavigationJButton extends JButton implements ActionListene
 
     private int corY;
     private final int iniCorY;
-    private int velY = 10;
     private String status = "Hiding";
+    private final Timer timer = new Timer(10,this);
 
     public NavigationJButton(int corX, int corY, int iniCorY) {
         this.corY = corY;
         this.iniCorY = iniCorY;
         setText("Navigation Button");
         setEnabled(true);
-        setBounds(corX,this.corY,500,50);
+        setBounds(corX, this.corY,500,50);
         setLocation(corX, this.corY);
         setUI(new CustomJButtonUI(Color.ORANGE));
         setSize(500,50);
@@ -27,7 +27,6 @@ public abstract class NavigationJButton extends JButton implements ActionListene
         Font font = new Font("Time New Roman", Font.BOLD,20);
         setFont(font);
         setVisible(false);
-        Timer timer = new Timer(10, this);
         timer.start();
     }
 
@@ -39,22 +38,27 @@ public abstract class NavigationJButton extends JButton implements ActionListene
         this.status = status;
     }
 
+    public void stopTimer() {
+        timer.stop();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (corY > iniCorY && corY <= (iniCorY + 816) && status.equals("Moving Up")) {
+        int velY = 32;
+        if (corY > iniCorY && corY <= (iniCorY + 800) && status.equals("Moving Up")) {
             setVisible(true);
-            corY -= velY;
-            velY += 1;
+            setLocation(getX(), corY -= velY);
             repaint();
-        } else if (corY >= iniCorY && corY < (iniCorY + 816) && status.equals("Moving Down")) {
+        } else if (corY >= iniCorY && corY < (iniCorY + 800) && status.equals("Moving Down")) {
             setVisible(true);
             setLocation(getX(), corY += velY);
-            velY += 1;
             repaint();
         } else if (status.equals("Showing")) {
             setVisible(true);
+            repaint();
         } else if (status.equals("Hiding")) {
             setVisible(false);
+            repaint();
         }
     }
 }
