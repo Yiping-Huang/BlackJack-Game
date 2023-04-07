@@ -7,7 +7,6 @@ import org.json.JSONObject;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class JsonWriter {
 
@@ -26,10 +25,9 @@ public class JsonWriter {
     // IOException, catch it and return false for the test purpose
     public Boolean write() {
         try {
-            ArrayList<Player> gameRecordsList = gameRecords.getList();
             JSONArray jsonArray = new JSONArray();
 
-            for (Player player : gameRecordsList) {
+            for (Player player : gameRecords) {
                 JSONObject jsonObject = new JSONObject();
                 jsonObject.put("Player Name", player.getName());
                 jsonObject.put("Player Assets", player.getAssets());

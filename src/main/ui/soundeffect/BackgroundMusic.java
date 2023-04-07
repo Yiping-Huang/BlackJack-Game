@@ -1,4 +1,4 @@
-package ui.sound;
+package ui.soundeffect;
 
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;

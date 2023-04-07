@@ -2,14 +2,14 @@ package ui.gamephases.information;
 
 // This class is a game label which is used to display messages to the user as instructions
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
+import ui.soundeffect.Cheering;
+import ui.soundeffect.Booing;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+
 
 public class MessageAreaTextJLabel extends JLabel implements ActionListener {
 
@@ -37,36 +37,41 @@ public class MessageAreaTextJLabel extends JLabel implements ActionListener {
     @SuppressWarnings("methodlength")
     public String processIndex(int messageIndex) {
         String message = "";
+        Booing loseSound = new Booing();
+        Cheering cheering = new Cheering();
         if (messageIndex == 0) {
             message = "Betting Stage";
         } else if (messageIndex == 1) {
             message = "Dealing Stage";
         } else if (messageIndex == 2) {
             message = "You Bust!" + "<br>You lose all your bets.";
+            loseSound.playMusic();
         } else if (messageIndex == 3) {
             message = "Push!" + "<br>You get bets back.";
         } else if (messageIndex == 4) {
             message = "Dealer wins!" + "<br>You lose all bets!";
+            loseSound.playMusic();
         } else if (messageIndex == 5) {
             message = "Black Jack!" + "<br>You earn double bets!";
-            playCheeringSound();
+            cheering.playMusic();
         } else if (messageIndex == 6) {
             message = "Dealer Busts!" + "<br>You earn the bets!";
-            playCheeringSound();
+            cheering.playMusic();
         } else if (messageIndex == 7) {
             message = "You win!" + "<br>You earn the bets!";
-            playCheeringSound();
+            cheering.playMusic();
         } else if (messageIndex == 8) {
             message = "Game over!" + "<br>You lose all assets.";
+            loseSound.playMusic();
         } else if (messageIndex == 9) {
             message = "5-card Charlie!"
                     + "<br>You may withdraw bonus"
                     + "<br>or hit for a bigger bonus";
-            playCheeringSound();
+            cheering.playMusic();
         } else if (messageIndex == 10) {
             message = "5-card Charlie!"
                     + "<br>You win big bonus!";
-            playCheeringSound();
+            cheering.playMusic();
         } else if (messageIndex == 11) {
             message = "Do you want to"
                     + "<br>make an Insurance?";
@@ -79,24 +84,13 @@ public class MessageAreaTextJLabel extends JLabel implements ActionListener {
             message = "The Dealer is not"
                     + "<br>Black Jack."
                     + "<br>You lose your insurance.";
+            loseSound.playMusic();
         }
         return message;
     }
 
     public void setStatus(String s) {
         status = s;
-    }
-
-    private void playCheeringSound() {
-        try {
-            File soundFile = new File("./sound/Cheering.wav");
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

@@ -15,15 +15,11 @@ import ui.navigationphase.startnewgamepage.StartNewGameJTextField;
 import ui.navigationphase.startnewgamepage.StartNewGameHeaderJLabel;
 import ui.navigationphase.mainmenu.StartNewGameJButton;
 import ui.navigationphase.startnewgamepage.SubmitNewPlayerJButton;
-import ui.sound.BackgroundMusic;
-import ui.sound.DealCardSound;
+import ui.soundeffect.BackgroundMusic;
+import ui.soundeffect.Clicking;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -44,11 +40,13 @@ public class BlackJackGame extends JFrame {
     private final Player placeHolder = new Player("Delete It", 100, 0);
     private Player currentPlayer;
     private GameState gameState;
-    private final BackgroundMusic backgroundMusic;
 
     // Following fields are typically used for GUI
     public final Color colorBackground = new Color(51,153,51);
     private final Color listBackground = new Color(255, 255, 224);
+    // Sound Effect
+    private final BackgroundMusic backgroundMusic;
+    private final Clicking clicking;
     // Main Menu Components
     private StartNewGameJButton startNewGameJButton;
     private ResumeGameJButton resumeGameJButton;
@@ -129,6 +127,7 @@ public class BlackJackGame extends JFrame {
         // Set Sound Effect
         backgroundMusic = new BackgroundMusic();
         backgroundMusic.playMusic();
+        clicking = new Clicking();
         // Load game records
         try {
             String fileContent = new String(Files.readAllBytes(Paths.get("./data/gameRecords.json")));
@@ -292,22 +291,22 @@ public class BlackJackGame extends JFrame {
     // and 4 for playerRankingJButton); when exitGameJButton is clicked, end the program directly
     public void processInputMainMenu() {
         startNewGameJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             panelIndex = 2;
             renderNavigation(placeHolder, gameRecords, panelIndex);
         });
         resumeGameJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             panelIndex = 3;
             renderNavigation(placeHolder, gameRecords, panelIndex);
         });
         playerRankingJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             panelIndex = 4;
             renderNavigation(placeHolder, gameRecords, panelIndex);
         });
         exitGameJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             backgroundMusic.stopMusic();
             System.exit(0);
         });
@@ -320,7 +319,7 @@ public class BlackJackGame extends JFrame {
     // call for the navigation renderer with panelIndex 1 (go back to the Main Menu)
     public void processInputStartNewGame() {
         submitNewPlayerJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (!startNewGameJTextField.getText().equals("")) {
                 panelIndex = 5;
                 currentPlayer = new Player(startNewGameJTextField.getText(), 1000, 0);
@@ -329,7 +328,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         backToMainMenuJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removeStartNewGameComponents();// Remove Start New Game Components
             removeBackToMainMenuJButton();// Remove Back to Main Menu Component
             panelIndex = 1;
@@ -354,14 +353,14 @@ public class BlackJackGame extends JFrame {
             }
         });
         loadRecordJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (hasClickedRecord) {
                 panelIndex = 5;
                 renderNavigation(gameRecords.getRecord(currentGameRecordIndex), gameRecords, panelIndex);
             }
         });
         deleteRecordJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (hasClickedRecord) {
                 if (gameRecords.getList().size() <= 1) {
                     panelIndex = 1;
@@ -376,7 +375,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         backToMainMenuJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removeResumeGameComponents();// Remove Resume Game Components
             removeBackToMainMenuJButton();// Remove Back to Main Menu Component
             panelIndex = 1;
@@ -389,7 +388,7 @@ public class BlackJackGame extends JFrame {
     // call for the navigation renderer with panelIndex 1 (go back to the Main Menu)
     public void processInputPlayerRanking() {
         backToMainMenuJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removePlayerRankingComponents();// Remove Player Ranking Components
             removeBackToMainMenuJButton();// Remove Back to Main Menu Component
             panelIndex = 1;
@@ -399,23 +398,18 @@ public class BlackJackGame extends JFrame {
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
     // MODIFIES: this, messageAreaTextJLabel, messageAreaBoardJLabel
-    // EFFECTS:  render the Game Phase 0 (Betting Stage) and call for the corresponding input processor; remove all the
-    // Swing components left by the previous Phase and add the Betting Stage components in proper order; if this
-    // renderer is called from Game Phase 5, set the status of messageAreaTextJLabel and messageAreaBoardJLabel as
-    // "Showing", otherwise set the status of messageAreaTextJLabel and messageAreaBoardJLabel as "Delay Showing" to
-    // avoid the overlapping with previous Phase's components; call for the corresponding processor of this renderer
+    // EFFECTS:  render the Game Phase 0 (Initial Betting Stage); remove all the Swing components left by the previous
+    // Phase and add the initial Betting Stage components in proper order; if this renderer is called from Game Phase 5,
+    // set the status of messageAreaTextJLabel and messageAreaBoardJLabel as "Showing", otherwise set the status of
+    // messageAreaTextJLabel and messageAreaBoardJLabel as "Delay Showing" to avoid the overlapping with previous
+    // Phase's components; call for the corresponding processor of this renderer
     public void renderGamePhase0(Player player, GameRecords gameRecords, boolean loadedGameRecord,
                                  int currentGameRecordIndex, boolean played, boolean fromPhase5) {
         gameState = new GameState(player.getName(), player.getAssets(), player.getRounds(),
                 0, new DealerCards(), new PlayerCards(), new Cards52());
         removeBackgroundColorAndLeftJoker();
         if (fromPhase5) {
-            messageAreaTextJLabel = new MessageAreaTextJLabel(0);
-            messageAreaTextJLabel.setStatus("Showing");
-            add(messageAreaTextJLabel);
-            messageAreaBoardJLabel = new MessageAreaBoardJLabel();
-            messageAreaBoardJLabel.setStatus("Showing");
-            add(messageAreaBoardJLabel);
+            addMessageAreaShowingHelper(0);
             addGameInfoAndBettingStageJButtonsFromGamePhase5();
         } else {
             messageAreaTextJLabel = new MessageAreaTextJLabel(0);
@@ -432,14 +426,14 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
+    // MODIFIES: this, gameState, raiseBetJButton, allInButton
     // EFFECTS:  process the input from the initial Betting Phase; when the raiseBetJButton is clicked, raise the bet
     // by $100. If "played" is false which means this Betting Stage is called from the Navigation Stage, call the
     // cleanOffLeftoverNavigationComponentsRaiseBet to clean off leftover components. If "played" is true which
     // means this Betting Stage is called from last Game Phase 5 and there are no components left from the Navigation
-    // Stage, call the Game Phase 1 (recurring betting) renderer directly; when the allInButton is clicked, raise the
-    // bet by $100. If "played" is false, call the cleanOffLeftoverNavigationComponentsAllIn to clean off the leftover
-    // components. If "played" is true, call the Game Phase 2 (Dealing Stage) renderer directly
+    // Stage, call the Game Phase 1 (Recurring Betting Stage) renderer directly; when the allInButton is clicked, raise
+    // the bet by $100. If "played" is false, call the cleanOffLeftoverNavigationComponentsAllIn to clean off the
+    // leftover components. If "played" is true, call the Game Phase 2 (Initial Dealing Stage) renderer directly
     @SuppressWarnings("methodlength")
     private void processInputGamePhase0(GameState gameState, GameRecords gameRecords, boolean loadedGameRecord,
                                        int currentGameRecordIndex, boolean played) {
@@ -448,7 +442,7 @@ public class BlackJackGame extends JFrame {
         this.loadedGameRecord = loadedGameRecord;
         this.currentGameRecordIndex = currentGameRecordIndex;
         raiseBetJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (this.gameState.getPlayerAssets() >= 100 && !played) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + 100);
                 this.gameState.setPlayerAssets(this.gameState.getPlayerAssets() - 100);
@@ -461,7 +455,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         allInButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (this.gameState.getPlayerAssets() >= 100 && !played) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
                 this.gameState.setPlayerAssets(0);
@@ -494,6 +488,10 @@ public class BlackJackGame extends JFrame {
         }
     }
 
+    // EFFECTS:  if "loadedGameRecord" is true which means the user start the game by loading an existing game record,
+    // remove the leftover components of the Resume Game page from this BlackJackGame JFrame and call for the Game
+    // Phase 2 renderer; otherwise which means the user start the game by creating a new player, remove the leftover
+    // components of the Start New Game page from this BlackJackGame JFrame and call for the Game Phase 2 renderer
     private void cleanOffLeftoverNavigationComponentsAllIn(GameState gameState, GameRecords gameRecords,
                                                            boolean loadedGameRecord, int currentGameRecordIndex) {
         if (loadedGameRecord) {
@@ -511,7 +509,9 @@ public class BlackJackGame extends JFrame {
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
     // MODIFIES: this
-    // EFFECTS:  render the recurring Betting Phase (Game Interface) and call for the corresponding input processor
+    // EFFECTS:  render the Game Phase 1 (Recurring Betting Stage); remove all the Swing components left by the Game
+    // Phase 0 and add all the Swing components of the Recurring Betting Stage; call for the corresponding input
+    // processor of this render
     private void renderGamePhase1(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
         removeBackgroundColorAndLeftJoker();
@@ -523,11 +523,11 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  process the input from the recurring Betting Phase; if command is "r" and player still has more than
-    // $100 assets, raise the bet by $100; if command is "a", all in and start the Dealing Phase; if command is "s",
-    // start the Dealing Phase; if command is "r" and player only has $100 left, raise the bet by $100 and start the
-    // Dealing Phase
+    // MODIFIES: this, gameState, raiseBetJButton, allInButton, stopBettingJButton
+    // EFFECTS:  process the input from the Game Phase 1 (Recurring Betting Phase); when raiseBetJButton is clicked, if
+    // player still has more than $100 assets, raise the Betting Box by $100, and if player only has $100 left, raise
+    // the Betting Box by $100 and render the Game Phase 2 (Initial Dealing Stage); when allInButton is clicked, all in
+    // and render the Game Phase 2; when stopBettingJButton is clicked, render the Game Phase 2
     @SuppressWarnings("methodlength")
     public void processInputGamePhase1(GameState gameState, GameRecords gameRecords, boolean loadedGameRecord,
                                        int currentGameRecordIndex) {
@@ -536,7 +536,7 @@ public class BlackJackGame extends JFrame {
         this.loadedGameRecord = loadedGameRecord;
         this.currentGameRecordIndex = currentGameRecordIndex;
         raiseBetJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (this.gameState.getPlayerAssets() > 100) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + 100);
                 this.gameState.setPlayerAssets(this.gameState.getPlayerAssets() - 100);
@@ -548,7 +548,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         allInButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (this.gameState.getPlayerAssets() >= 100) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
                 this.gameState.setPlayerAssets(0);
@@ -556,17 +556,19 @@ public class BlackJackGame extends JFrame {
             }
         });
         stopBettingJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             renderGamePhase2(this.gameState, this.gameRecords,
                     this.loadedGameRecord, this.currentGameRecordIndex);
         });
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  render the initial Dealing Phase (Game Interface), initialize the game state; handle different
-    // situations including insurance case, blackjack case, normal case with double, and normal case without double;
-    // call for the corresponding input processor in different situations
+    // MODIFIES: this, gameState
+    // EFFECTS:  render the Game Phase 2 (Initial Dealing Stage); initialize the game state which means picking four
+    // random cards from the Cards Pool (52 Poker cards), assigning two cards to the Dealer (one is face-up, one is
+    // face-down), assigning two cards to the Player (all are face-up); remove all the Swing components left by the
+    // previous Phase; handle and render different situations including insurance case, blackjack case, normal case with
+    // double, and normal case without double; call for the corresponding input processor in different situations
     @SuppressWarnings("methodlength")
     public void renderGamePhase2(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
@@ -624,142 +626,12 @@ public class BlackJackGame extends JFrame {
         }
     }
 
-    private void addMessageAreaShowingHelper(int messageIndex) {
-        messageAreaTextJLabel = new MessageAreaTextJLabel(messageIndex);
-        messageAreaTextJLabel.setStatus("Showing");
-        add(messageAreaTextJLabel);
-        messageAreaBoardJLabel = new MessageAreaBoardJLabel();
-        messageAreaBoardJLabel.setStatus("Showing");
-        add(messageAreaBoardJLabel);
-    }
-
-    private void removeMessageAreaHelper() {
-        remove(messageAreaTextJLabel);
-        remove(messageAreaBoardJLabel);
-    }
-
-    @SuppressWarnings("methodlength")
-    // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
-    private void addInitialCardsAndCountersHelper(GameState gameState) {
-        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 0,1);
-        dealerCardJLabel2.setStatus("Delay Moving Down");
-        add(dealerCardJLabel2);
-        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 0, 0);
-        dealerCardJLabel1.setStatus("Moving Down");
-        add(dealerCardJLabel1);
-        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
-        dealerCardsCounterJLabel.setStatus("Showing");
-        add(dealerCardsCounterJLabel);
-        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
-        playerCardJLabel2.setStatus("Delay Moving Up");
-        add(playerCardJLabel2);
-        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
-        playerCardJLabel1.setStatus("Moving Up");
-        add(playerCardJLabel1);
-        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
-        playerCardsCounterJLabel.setStatus("Showing");
-        add(playerCardsCounterJLabel);
-    }
-
-    private void removeInitialCardsAndCountersHelper() {
-        remove(dealerCardJLabel2);
-        remove(dealerCardJLabel1);
-        remove(dealerCardsCounterJLabel);
-        remove(playerCardJLabel2);
-        remove(playerCardJLabel1);
-        remove(playerCardsCounterJLabel);
-    }
-
-    private void addInsuranceStageJButtonsHelper() {
-        insuranceJButton = new InsuranceJButton(1172, 350);
-        insuranceJButton.setStatus("Showing");
-        add(insuranceJButton);
-        skipInsuranceJButton = new SkipInsuranceJButton(1172, 430);
-        skipInsuranceJButton.setStatus("Showing");
-        add(skipInsuranceJButton);
-    }
-
-    private void removeInsuranceStageJButtonsHelper() {
-        remove(insuranceJButton);
-        remove(skipInsuranceJButton);
-    }
-
-    // EFFECTS:  help the initial Dealing Phase renderer render action elements
-    private void addAllDealingStageJButtonsNoWithdrawHelper() {
-        hitJButton = new HitJButton(1172, 350);
-        hitJButton.setStatus("Showing");
-        add(hitJButton);
-        doubleJButton = new DoubleJButton(1172, 430);
-        doubleJButton.setStatus("Showing");
-        add(doubleJButton);
-        standJButton = new StandJButton(1172, 510);
-        standJButton.setStatus("Showing");
-        add(standJButton);
-        withdrawJButton = new WithdrawJButton(1172, 590);
-        withdrawJButton.setStatus("Hiding");
-        add(withdrawJButton);
-    }
-
-    // EFFECTS:  help the initial Dealing Phase renderer render action elements
-    private void addAllDealingStageJButtonsNoDoubleNoWithdrawHelper() {
-        hitJButton = new HitJButton(1172, 350);
-        hitJButton.setStatus("Showing");
-        add(hitJButton);
-        doubleJButton = new DoubleJButton(1172, 430);
-        doubleJButton.setStatus("Hiding");
-        add(doubleJButton);
-        standJButton = new StandJButton(1172, 510);
-        standJButton.setStatus("Showing");
-        add(standJButton);
-        withdrawJButton = new WithdrawJButton(1172, 590);
-        withdrawJButton.setStatus("Hiding");
-        add(withdrawJButton);
-    }
-
-    private void addAllDealingStageJButtonsNoDoubleNoStandHelper() {
-        hitJButton = new HitJButton(1172, 350);
-        hitJButton.setStatus("Showing");
-        add(hitJButton);
-        doubleJButton = new DoubleJButton(1172, 430);
-        doubleJButton.setStatus("Hiding");
-        add(doubleJButton);
-        standJButton = new StandJButton(1172, 510);
-        standJButton.setStatus("Hiding");
-        add(standJButton);
-        withdrawJButton = new WithdrawJButton(1172, 590);
-        withdrawJButton.setStatus("Showing");
-        add(withdrawJButton);
-    }
-
-    private void removeDealingStageAllJButtonsHelper() {
-        remove(hitJButton);
-        remove(doubleJButton);
-        remove(withdrawJButton);
-        remove(standJButton);
-    }
-
-    private void addDealingStagePlayerInfoHelper() {
-        bettingAreaJLabel = new BettingAreaJLabel(gameState);
-        bettingAreaJLabel.setStatus("Showing");
-        add(bettingAreaJLabel);
-        playerInfoJLabel = new PlayerInfoTextJLabel(gameState);
-        playerInfoJLabel.setStatus("Showing");
-        add(playerInfoJLabel);
-        playerInfoBoardJLabel = new PlayerInfoBoardJLabel();
-        playerInfoBoardJLabel.setStatus("Showing");
-        add(playerInfoBoardJLabel);
-    }
-
-    private void removeDealingStagePlayerInfoHelper() {
-        remove(bettingAreaJLabel);
-        remove(playerInfoJLabel);
-        remove(playerInfoBoardJLabel);
-    }
-
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // EFFECTS:  render the sub phase of the initial Dealing Phase if the user encounter the insurance case and also
-    // chose to make the insurance; handle different situation including blackjack case, normal case with double, and
-    // normal case without double; call for the corresponding input processor or renderer in different situations
+    // MODIFIES: this
+    // EFFECTS:  render the sub Phase (Insurance Stage) of the Game Phase 2 (Initial Dealing Stage) if the user
+    // encountered the insurance case and also chose to make the insurance; remove the Swing components left by the Game
+    // Phase 2; handle and render different situation including blackjack case, normal case with double, and normal case
+    // without double; call for the corresponding input processor or the renderer of BlackJack Phase
     private void renderAfterInsurancePhase(GameState gameState, GameRecords gameRecords,
                                           boolean loadedGameRecord, int currentGameRecordIndex) {
         DealerCards dealerCards = gameState.getDealerCards();
@@ -787,10 +659,11 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  render the sub phase of the initial Dealing Phase if the user encounter the Black Jack situation in the
-    // initial Dealing Phase or After Insurance Phase; handle different situation including push case, dealer blackjack
-    // case, and player blackjack case; call for the renderer of the Closing Phase
+    // MODIFIES: this, gameState
+    // EFFECTS:  render the sub Phase (Black Jack Stage) of the Dealing Stage if the user encounter the Black Jack
+    // situation during the Dealing Stage (including Initial Dealing Stage); remove the Swing components left by the
+    // previous Game Phase; handle and render different situations including push case, dealer blackjack case, and
+    // player blackjack case; call for the renderer of the Game Phase 5 (Closing Stage)
     @SuppressWarnings("methodlength")
     public void renderBlackJackPhase(GameState gameState, GameRecords gameRecords,
                                      boolean loadedGameRecord, int currentGameRecordIndex,
@@ -824,12 +697,11 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  process input from the initial Dealing Phase; if command is "h", hit for one more card and call for
-    // the renderer of Player Recurring Hitting Phase; if command is "d", double the bet, hit for one more card, and
-    // call for the renderer of Closing Phase; if command is "s", call for the renderer of Dealer Final Recurring
-    // Dealing Phase; if command is "i", make the insurance and call for the renderer of After Insurance Phase; if
-    // command is "n", make no insurance and call for the renderer of After Insurance Phase
+    // MODIFIES: this, hitJButton, doubleJButton, standJButton, gameState
+    // EFFECTS:  process input from the Game Phase 2 (Initial Dealing Stage); when hitJButton is clicked, hit for one
+    // more card and call for the renderer of Game Phase 3 (Dealing Stage | Player Hitting); when doubleJButton is
+    // clicked, double the bet, hit for one more card, and call for the renderer of Game Phase 4 (Dealing Stage | Dealer
+    // Dealing); when standJButton is clicked, call for the renderer of Game Phase 4
     @SuppressWarnings("methodlength")
     public void processInputGamePhase2(GameState gameState, GameRecords gameRecords, boolean loadedGameRecord,
                                        int currentGameRecordIndex) {
@@ -842,7 +714,7 @@ public class BlackJackGame extends JFrame {
         int changedBettingBox = 2 * bettingBox;
 
         hitJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), gameState.getPlayerAssets(),
                     gameState.getPlayerRounds(), gameState.getBettingBox(), gameState.getDealerCards(),
@@ -853,7 +725,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase3(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         doubleJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), changedAssets, gameState.getPlayerRounds(),
                     changedBettingBox, gameState.getDealerCards(), playerCards, cardsPool);
@@ -863,7 +735,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase4(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         standJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (dealerCards.sumDealerCards() < 17) {
                 dealerCards.addDealerCard(cardsPool.pickRandomCard());
             } else {
@@ -876,11 +748,16 @@ public class BlackJackGame extends JFrame {
         });
     }
 
+    // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
+    // MODIFIES: this, insuranceJButton, skipInsuranceJButton, gameState
+    // EFFECTS:  process input from the Insurance Stage of the Game Phase 2 (Initial Dealing Stage); when
+    // insuranceJButton is clicked, make the insurance and call for the renderer of the After Insurance Phase; when
+    // skipInsuranceJButton is clicked, make no insurance and call for the renderer of the After Insurance Phase
     @SuppressWarnings("methodlength")
     public void processInputInsuranceStage(GameState gameState, GameRecords gameRecords, boolean loadedGameRecord,
                                        int currentGameRecordIndex) {
         insuranceJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removeMessageAreaHelper();
             if (gameState.getDealerCards().sumDealerCards() == 21) {
                 gameState.setPlayerAssets(gameState.getPlayerAssets() + 2 * gameState.getBettingBox());
@@ -894,7 +771,7 @@ public class BlackJackGame extends JFrame {
             renderAfterInsurancePhase(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         skipInsuranceJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removeMessageAreaHelper();
             addMessageAreaShowingHelper(1);
             removeInitialCardsAndCountersHelper();
@@ -905,11 +782,11 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  render the Player Recurring Hitting Phase (Game Interface); if player busts, call for the renderer of
-    // the Closing Phase; if 5-card Charlie & Blackjack, call for the renderer of the Closing Phase; if 5-card Charlie
-    // solely, call for the corresponding input processor; if Blackjack, call for the renderer of Black Jack Phase; else
-    // call for the corresponding input processor of this phase
+    // MODIFIES: this, gameState
+    // EFFECTS:  render the Game Phase 3 (Dealing Stage | Player Hitting); if player busts, call for the renderer of
+    // the Game Phase 5 (Closing Stage); if 5-card Charlie & Blackjack, call for the renderer of the Game Phase 5; if
+    // 5-card Charlie solely, call for the corresponding input processor; if Blackjack, call for the renderer of the
+    // Black Jack Phase; else call for the corresponding input processor of this phase
     @SuppressWarnings("methodlength")
     public void renderGamePhase3(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
@@ -952,10 +829,11 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  process the input from the Player Recurring Hitting Phase; if command is "h", hit for another card and
-    // call for the Player Recurring Hitting Phase renderer; if command is "s", call for the Dealer Final Recurring
-    // Dealing Phase renderer; if command is "w", withdraw bets and bonus to the assets and call for the Closing Phase
+    // MODIFIES: this, hitJButton, standJButton, withdrawJButton, gameState
+    // EFFECTS:  process the input from the Game Phase 3 (Dealing Stage | Player Hitting); when hitJButton is clocked,
+    // hit for another card and call for the renderer of the Game Phase 3; when standJButton is clicked, call for the
+    // renderer of the Game Phase 4 (Dealing Stage | Dealer Dealing); when withdrawJButton is clicked, withdraw bets and
+    // bonus to the assets and call for the renderer of the Game Phase 5 (Closing Stage)
     @SuppressWarnings("methodlength")
     public void processInputGamePhase3(GameState gameState, GameRecords gameRecords,
                                        boolean loadedGameRecord, int currentGameRecordIndex) {
@@ -964,7 +842,7 @@ public class BlackJackGame extends JFrame {
         Cards52 cardsPool = gameState.getCardsPool();
 
         hitJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             playerCards.addPlayerCard(cardsPool.pickRandomCard());
             this.gameState = new GameState(gameState.getPlayerName(), gameState.getPlayerAssets(),
                     gameState.getPlayerRounds(), gameState.getBettingBox(), gameState.getDealerCards(),
@@ -975,7 +853,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase3(this.gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         standJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (dealerCards.sumDealerCards() < 17) {
                 dealerCards.addDealerCard(cardsPool.pickRandomCard());
             } else {
@@ -987,7 +865,7 @@ public class BlackJackGame extends JFrame {
             renderGamePhase4(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex);
         });
         withdrawJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             removeMessageAreaHelper();
             addMessageAreaShowingHelper(10);
             gameState.setPlayerAssets(gameState.getPlayerAssets()
@@ -1003,12 +881,13 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  render the Dealer Final Recurring Dealing Phase; if dealer or player busts, call for the Closing Phase
-    // renderer; if Blackjack, call for the Black Jack Phase renderer; if the sum of dealer cards is less than 17 and
-    // less than 5 cards, keep hitting dealer cards until the sum is more than or equal to 17; if dealer has 5 cards
-    // without busting, call for the Closing Phase; if the sum of dealer cards is more than 17, compare dealer cards
-    // and player cards and call for the Closing Phase
+    // MODIFIES: this, gameState
+    // EFFECTS:  render the Game Phase 4 (Dealing Stage | Dealer Dealing); if dealer or player busts, call for the
+    // render of the Game Phase 5 (Closing Stage); if Blackjack, call for the Black Jack Phase renderer; if the sum of
+    // dealer cards is less than 17 and less than 5 cards, keep hitting dealer cards until the sum is more than or equal
+    // to 17 by calling for the processor of this renderer; if dealer has 5 cards without busting, call for the Game
+    // Phase 5; if the sum of dealer cards is more than 17, compare dealer cards and player cards and call for the
+    // Game Phase 5
     @SuppressWarnings("methodlength")
     public void renderGamePhase4(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex) {
@@ -1069,8 +948,8 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS:  keep the Dealer Final Recurring Dealing Phase recurring
+    // MODIFIES: this, gameState
+    // EFFECTS:  keep the renderer of the Game Phase 4 (Dealing Stage | Dealer Dealing) recurring
     public void processGamePhase4(GameState gameState, GameRecords gameRecords,
                                   boolean loadedGameRecord, int currentGameRecordIndex) {
         DealerCards dealerCards = gameState.getDealerCards();
@@ -1080,11 +959,17 @@ public class BlackJackGame extends JFrame {
     }
 
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // EFFECTS:  if user still have assets, render the Closing Phase and provide navigation to start new round, save
-    // game record, and go back to the main menu; if user lost all assets and user start the game by loading a game
-    // record, delete this record, render the Closing Phase and provide navigation to back to the main menu; if user
-    // started a new game and lost all assets, just render the Closing Phase and provide the navigation to go back to
-    // the main menu
+    // MODIFIES: this, newRoundJButton, saveGameRecordJButton, mainMenuJButton, gameState
+    // EFFECTS:  render the Game Phase 5 (Closing Stage); if user still have assets, render the Closing Phase and
+    // provide navigation to start new round, save game record, and go back to the main menu; if user lost all assets
+    // and user start the game by loading a game record, delete this record, render the Closing Phase and provide
+    // navigation to back to the main menu; if user started a new game and lost all assets, just render the Closing
+    // Phase and provide the navigation to go back to the main menu; if this renderer is called from the Game Phase 2,
+    // just render the initial four cards; if this renderer is called from the Game Phase 3 or 4, render all the cards
+    // hold by both parties and add Speeding Animation Effect for all the new cards hold by the both parties; if the
+    // user just clicked to save the record and refresh the Game Page, just normally render all the cards without
+    // animation; otherwise render all the cards with only Dealer's new cards have Speeding Animation Effect; call for
+    // the corresponding processor of this renderer
     @SuppressWarnings("methodlength")
     public void renderGamePhase5(GameState gameState, GameRecords gameRecords,
                                  boolean loadedGameRecord, int currentGameRecordIndex,
@@ -1136,24 +1021,19 @@ public class BlackJackGame extends JFrame {
         processInputGamePhase5(gameState, gameRecords, loadedGameRecord, currentGameRecordIndex, fromPhase2);
     }
 
-    private void removeAllClosingJButtonsHelper() {
-        remove(newRoundJButton);
-        remove(saveGameRecordJButton);
-        remove(mainMenuJButton);
-    }
-
     // REQUIRES: currentGameRecordIndex is smaller than or equal to the length of the game records list
-    // MODIFIES: this
-    // EFFECTS: process inputs from the Closing Phase; if command is "n", start a new round and call for the initial
-    // Betting Phase render; if command is "s", save the game record and come back to the same page; if command is "b",
-    // call the Navigation renderer\
+    // MODIFIES: this, newRoundJButton, saveGameRecordJButton, mainMenuJButton
+    // EFFECTS: process inputs from the Game Phase 5 (Closing Stage); when newRoundJButton is clicked, start a new round
+    // and call for the Game Phase 0 (Initial Betting Stage) render; when saveGameRecordJButton is clicked, save or
+    // overwrite the game record and come back to the same page; when mainMenuJButton is clicked, call the Navigation
+    // Stage renderer
     @SuppressWarnings("methodlength")
     public void processInputGamePhase5(GameState gameState, GameRecords gameRecords,
                                        boolean loadedGameRecord, int currentGameRecordIndex, boolean fromPhase2) {
         Player currentPlayer = new Player(gameState.getPlayerName(),
                 gameState.getPlayerAssets(),gameState.getPlayerRounds() + 1);
         newRoundJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (fromPhase2) {
                 removeInitialCardsAndCountersHelper();
             } else {
@@ -1166,7 +1046,7 @@ public class BlackJackGame extends JFrame {
                     true, true);
         });
         saveGameRecordJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             if (loadedGameRecord) {
                 gameRecords.saveOldRecord(currentGameRecordIndex, currentPlayer);
                 new JsonWriter(gameRecords,"./data/gameRecords.json").write();
@@ -1195,7 +1075,7 @@ public class BlackJackGame extends JFrame {
             }
         });
         mainMenuJButton.addActionListener(e -> {
-            playClickingSound();
+            clicking.playMusic();
             this.gameRecords = gameRecords;
             if (fromPhase2) {
                 removeInitialCardsAndCountersHelper();
@@ -1208,235 +1088,6 @@ public class BlackJackGame extends JFrame {
             removeBackgroundColorAndLeftJoker();
             renderNavigation(placeHolder, this.gameRecords, 0);
         });
-    }
-
-    @SuppressWarnings("methodlength")
-    // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
-    private void addAllCardsAndCountersBothDealerAndPlayerAutoRenderHelper(GameState gameState) {
-        int dealerMovingIndex = gameState.getDealerCards().getList().size() - 1;
-        int playerMovingIndex = gameState.getPlayerCards().getList().size() - 1;
-        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 858, 4);
-        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 858, 3);
-        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 858, 2);
-        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
-        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
-        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
-        dealerCardsCounterJLabel.setStatus("Showing");
-        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
-        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
-        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
-        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
-        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
-        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
-        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
-        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
-        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
-        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
-        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
-        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
-        playerCardsCounterJLabel.setStatus("Showing");
-        switch (dealerMovingIndex) {
-            case 2:
-                dealerCardJLabel3.setCorY(0);
-                dealerCardJLabel3.setStatus("Moving Down");
-                break;
-            case 3:
-                dealerCardJLabel4.setCorY(0);
-                dealerCardJLabel4.setStatus("Moving Down");
-                break;
-            case 4:
-                dealerCardJLabel5.setCorY(0);
-                dealerCardJLabel5.setStatus("Moving Down");
-                break;
-        }
-        switch (playerMovingIndex) {
-            case 2:
-                playerCardJLabel3.setStatus("Moving Up");
-                break;
-            case 3:
-                playerCardJLabel4.setStatus("Moving Up");
-                break;
-            case 4:
-                playerCardJLabel5.setStatus("Moving Up");
-                break;
-            case 5:
-                playerCardJLabel6.setStatus("Moving Up");
-                break;
-            case 6:
-                playerCardJLabel7.setStatus("Moving Up");
-                break;
-            case 7:
-                playerCardJLabel8.setStatus("Moving Up");
-                break;
-            case 8:
-                playerCardJLabel9.setStatus("Moving Up");
-                break;
-            case 9:
-                playerCardJLabel10.setStatus("Moving Up");
-                break;
-            case 10:
-                playerCardJLabel11.setStatus("Moving Up");
-                break;
-        }
-        add(dealerCardJLabel5);
-        add(dealerCardJLabel4);
-        add(dealerCardJLabel3);
-        add(dealerCardJLabel2);
-        add(dealerCardJLabel1);
-        add(dealerCardsCounterJLabel);
-        add(playerCardJLabel11);
-        add(playerCardJLabel10);
-        add(playerCardJLabel9);
-        add(playerCardJLabel8);
-        add(playerCardJLabel7);
-        add(playerCardJLabel6);
-        add(playerCardJLabel5);
-        add(playerCardJLabel4);
-        add(playerCardJLabel3);
-        add(playerCardJLabel2);
-        add(playerCardJLabel1);
-        add(playerCardsCounterJLabel);
-    }
-
-    @SuppressWarnings("methodlength")
-    // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
-    private void addAllCardsAndCountersOnlyDealerAutoRenderHelper(GameState gameState) {
-        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 0, 4);
-        dealerCardJLabel5.setStatus("Moving Down");
-        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 0, 3);
-        dealerCardJLabel4.setStatus("Moving Down");
-        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 0, 2);
-        dealerCardJLabel3.setStatus("Moving Down");
-        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
-        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
-        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
-        dealerCardsCounterJLabel.setStatus("Showing");
-        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
-        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
-        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
-        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
-        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
-        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
-        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
-        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
-        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
-        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
-        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
-        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
-        playerCardsCounterJLabel.setStatus("Showing");
-        add(dealerCardJLabel5);
-        add(dealerCardJLabel4);
-        add(dealerCardJLabel3);
-        add(dealerCardJLabel2);
-        add(dealerCardJLabel1);
-        add(dealerCardsCounterJLabel);
-        add(playerCardJLabel11);
-        add(playerCardJLabel10);
-        add(playerCardJLabel9);
-        add(playerCardJLabel8);
-        add(playerCardJLabel7);
-        add(playerCardJLabel6);
-        add(playerCardJLabel5);
-        add(playerCardJLabel4);
-        add(playerCardJLabel3);
-        add(playerCardJLabel2);
-        add(playerCardJLabel1);
-        add(playerCardsCounterJLabel);
-    }
-
-    @SuppressWarnings("methodlength")
-    // EFFECTS:  help the initial Dealing Phase renderer render routine info elements
-    private void addAllCardsAndCountersNormalRenderHelper(GameState gameState) {
-        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 858, 4);
-        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 858, 3);
-        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 858, 2);
-        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
-        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
-        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
-        dealerCardsCounterJLabel.setStatus("Showing");
-        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
-        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
-        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
-        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
-        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
-        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
-        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
-        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
-        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
-        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
-        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
-        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
-        playerCardsCounterJLabel.setStatus("Showing");
-        add(dealerCardJLabel5);
-        add(dealerCardJLabel4);
-        add(dealerCardJLabel3);
-        add(dealerCardJLabel2);
-        add(dealerCardJLabel1);
-        add(dealerCardsCounterJLabel);
-        add(playerCardJLabel11);
-        add(playerCardJLabel10);
-        add(playerCardJLabel9);
-        add(playerCardJLabel8);
-        add(playerCardJLabel7);
-        add(playerCardJLabel6);
-        add(playerCardJLabel5);
-        add(playerCardJLabel4);
-        add(playerCardJLabel3);
-        add(playerCardJLabel2);
-        add(playerCardJLabel1);
-        add(playerCardsCounterJLabel);
-    }
-
-    @SuppressWarnings("methodlength")
-    private void removeAllCardsAndCountersHelper() {
-        dealerCardJLabel5.stopTimer();
-        dealerCardJLabel4.stopTimer();
-        dealerCardJLabel3.stopTimer();
-        dealerCardJLabel2.stopTimer();
-        dealerCardJLabel1.stopTimer();
-        dealerCardsCounterJLabel.stopTimer();
-        playerCardJLabel11.stopTimer();
-        playerCardJLabel10.stopTimer();
-        playerCardJLabel9.stopTimer();
-        playerCardJLabel8.stopTimer();
-        playerCardJLabel7.stopTimer();
-        playerCardJLabel6.stopTimer();
-        playerCardJLabel5.stopTimer();
-        playerCardJLabel4.stopTimer();
-        playerCardJLabel3.stopTimer();
-        playerCardJLabel2.stopTimer();
-        playerCardJLabel1.stopTimer();
-        playerCardsCounterJLabel.stopTimer();
-        remove(dealerCardJLabel5);
-        remove(dealerCardJLabel4);
-        remove(dealerCardJLabel3);
-        remove(dealerCardJLabel2);
-        remove(dealerCardJLabel1);
-        remove(dealerCardsCounterJLabel);
-        remove(playerCardJLabel11);
-        remove(playerCardJLabel10);
-        remove(playerCardJLabel9);
-        remove(playerCardJLabel8);
-        remove(playerCardJLabel7);
-        remove(playerCardJLabel6);
-        remove(playerCardJLabel5);
-        remove(playerCardJLabel4);
-        remove(playerCardJLabel3);
-        remove(playerCardJLabel2);
-        remove(playerCardJLabel1);
-        remove(playerCardsCounterJLabel);
-    }
-
-    private void playClickingSound() {
-        try {
-            File soundFile = new File("./sound/Clicking.wav");
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.start();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     // Navigation Stage Rendering Helpers
@@ -1604,6 +1255,27 @@ public class BlackJackGame extends JFrame {
         remove(backgroundColorJPanel);
     }
 
+    // General Game Phases Rendering Helpers
+
+    // REQUIRES: messageIndex is within the range of [0, 13]
+    // MODIFIES: this, messageAreaTextJLabel, messageAreaBoardJLabel
+    // EFFECTS:  add messageAreaTextJLabel and messageAreaBoardJLabel to this BlackJackGame JFrame; set the status of
+    // messageAreaTextJLabel and messageAreaBoardJLabel as "Showing"
+    private void addMessageAreaShowingHelper(int messageIndex) {
+        messageAreaTextJLabel = new MessageAreaTextJLabel(messageIndex);
+        messageAreaTextJLabel.setStatus("Showing");
+        add(messageAreaTextJLabel);
+        messageAreaBoardJLabel = new MessageAreaBoardJLabel();
+        messageAreaBoardJLabel.setStatus("Showing");
+        add(messageAreaBoardJLabel);
+    }
+
+    // EFFECTS:  remove messageAreaTextJLabel and messageAreaBoardJLabel from this BlackJackGame JFrame
+    private void removeMessageAreaHelper() {
+        remove(messageAreaTextJLabel);
+        remove(messageAreaBoardJLabel);
+    }
+
     // Betting Stage Rendering Helpers (Game Phase 0 and Game Phase 1)
 
     // MODIFIES: this, playerInfoJLabel, playerInfoBoardJLabel, bettingAreaJLabel, raiseBetJButton, allInButton,
@@ -1612,7 +1284,7 @@ public class BlackJackGame extends JFrame {
     // JButton, and Stop Betting JButton to this BlackJackGame JFrame; set the Stop Betting JButton as "Hiding" since it
     // is just a placeholder here; set other components to be "Showing" since we need to render the GUI as user starts
     // a new round which means the Game Phase 0 renderer is called from Game Phase 5
-    public void addGameInfoAndBettingStageJButtonsFromGamePhase5() {
+    private void addGameInfoAndBettingStageJButtonsFromGamePhase5() {
         playerInfoJLabel = new PlayerInfoTextJLabel(gameState);
         playerInfoJLabel.setStatus("Showing");
         add(playerInfoJLabel);
@@ -1639,7 +1311,7 @@ public class BlackJackGame extends JFrame {
     // JButton, and Stop Betting JButton to this BlackJackGame JFrame; set the Stop Betting JButton as "Hiding" since it
     // is just a placeholder here; set other components to be "Delay Showing" to avoid the overlapping with "Moving
     // Right" Right Joker since we are calling Game Phase 0 renderer from previous Navigation stage
-    public void addGameInfoAndBettingStageJButtonsFromNavigationStage() {
+    private void addGameInfoAndBettingStageJButtonsFromNavigationStage() {
         playerInfoJLabel = new PlayerInfoTextJLabel(gameState);
         playerInfoJLabel.setStatus("Delay Showing");
         add(playerInfoJLabel);
@@ -1664,8 +1336,8 @@ public class BlackJackGame extends JFrame {
     // stopBettingJButton
     // EFFECTS:  add the Player Info JLabel, Player Info Board JLabel, Betting Area JLabel, Raise Bet JButton, All-in
     // JButton, and Stop Betting JButton to this BlackJackGame JFrame; set all components as "Showing" since we are
-    // calling Game Phase 1 renderer from previous Game Phase 0 which means we are in the state of recurring betting
-    public void addGameInfoAndBettingStageJButtonsRecurringBetting() {
+    // calling Game Phase 1 renderer from previous Game Phase 0 which means we are in the Recurring Betting Stage
+    private void addGameInfoAndBettingStageJButtonsRecurringBetting() {
         playerInfoJLabel = new PlayerInfoTextJLabel(gameState);
         playerInfoJLabel.setStatus("Showing");
         add(playerInfoJLabel);
@@ -1689,7 +1361,7 @@ public class BlackJackGame extends JFrame {
     // MODIFIES: this
     // EFFECTS:  remove the Player Info JLabel, Player Info Board JLabel, Betting Area JLabel, Raise Bet JButton,
     // All-in JButton, and Stop Betting JButton from this BlackJackGame JFrame
-    public void removeGameInfoAndBettingStageJButtons() {
+    private void removeGameInfoAndBettingStageJButtons() {
         playerInfoJLabel.stopTimer();
         playerInfoBoardJLabel.stopTimer();
         bettingAreaJLabel.stopTimer();
@@ -1703,6 +1375,393 @@ public class BlackJackGame extends JFrame {
         remove(allInButton);
         remove(stopBettingJButton);
     }
+
+    // Dealing Stage Rendering Helper Including Insurance Stage (Game Phase 2, Game Phase 3, and Game Phase 4)
+
+    @SuppressWarnings("methodlength")
+    // MODIFIES: this, dealerCardJLabel2, dealerCardJLabel1, dealerCardsCounterJLabel, playerCardJLabel2,
+    // playerCardJLabel1, playerCardsCounterJLabel
+    // EFFECTS:  help the Game Phase 2 (Initial Dealing Stage) add dealerCardJLabel1, dealerCardJLabel2,
+    // dealerCardsCounterJLabel, playerCardJLabel1, playerCardJLabel2, and playerCardsCounterJLabel to this
+    // BlackJackGame JFrame; set the status of the first card of both Dealer and Player as "Moving Down"; set the status
+    // of the second card of both Dealer and Player as "Delay Moving Down"; set the status of both Counter as "Showing"
+    private void addInitialCardsAndCountersHelper(GameState gameState) {
+        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 0,1);
+        dealerCardJLabel2.setStatus("Delay Moving Down");
+        add(dealerCardJLabel2);
+        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 0, 0);
+        dealerCardJLabel1.setStatus("Moving Down");
+        add(dealerCardJLabel1);
+        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
+        dealerCardsCounterJLabel.setStatus("Showing");
+        add(dealerCardsCounterJLabel);
+        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
+        playerCardJLabel2.setStatus("Delay Moving Up");
+        add(playerCardJLabel2);
+        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
+        playerCardJLabel1.setStatus("Moving Up");
+        add(playerCardJLabel1);
+        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
+        playerCardsCounterJLabel.setStatus("Showing");
+        add(playerCardsCounterJLabel);
+    }
+
+    // EFFECTS:  remove dealerCardJLabel1, dealerCardJLabel2, dealerCardsCounterJLabel, playerCardJLabel1,
+    // playerCardJLabel2, and playerCardsCounterJLabel from this BlackJackGame JFrame
+    private void removeInitialCardsAndCountersHelper() {
+        remove(dealerCardJLabel2);
+        remove(dealerCardJLabel1);
+        remove(dealerCardsCounterJLabel);
+        remove(playerCardJLabel2);
+        remove(playerCardJLabel1);
+        remove(playerCardsCounterJLabel);
+    }
+
+    // MODIFIES: this, insuranceJButton, skipInsuranceJButton
+    // EFFECTS:  help the Game Phase 2 (Initial Dealing Stage) add insuranceJButton and skipInsuranceJButton to this
+    // BlackJackGame JFrame; set the status of insuranceJButton and skipInsuranceJButton as "Showing"
+    private void addInsuranceStageJButtonsHelper() {
+        insuranceJButton = new InsuranceJButton(1172, 350);
+        insuranceJButton.setStatus("Showing");
+        add(insuranceJButton);
+        skipInsuranceJButton = new SkipInsuranceJButton(1172, 430);
+        skipInsuranceJButton.setStatus("Showing");
+        add(skipInsuranceJButton);
+    }
+
+    // EFFECTS:  remove insuranceJButton and skipInsuranceJButton from this BlackJackGame JFrame
+    private void removeInsuranceStageJButtonsHelper() {
+        remove(insuranceJButton);
+        remove(skipInsuranceJButton);
+    }
+
+    // MODIFIES: this, hitJButton, doubleJButton, standJButton, withdrawJButton
+    // EFFECTS:  render the JButtons when there should be a Double option; add hitJButton, doubleJButton, standJButton,
+    // and withdrawJButton to this BlackJackGame JFrame; set the status of hitJButton, doubleJButton, and standJButton
+    // as "Showing"; set the status of withdrawJButton as "Hiding"
+    private void addAllDealingStageJButtonsNoWithdrawHelper() {
+        hitJButton = new HitJButton(1172, 350);
+        hitJButton.setStatus("Showing");
+        add(hitJButton);
+        doubleJButton = new DoubleJButton(1172, 430);
+        doubleJButton.setStatus("Showing");
+        add(doubleJButton);
+        standJButton = new StandJButton(1172, 510);
+        standJButton.setStatus("Showing");
+        add(standJButton);
+        withdrawJButton = new WithdrawJButton(1172, 590);
+        withdrawJButton.setStatus("Hiding");
+        add(withdrawJButton);
+    }
+
+    // MODIFIES: this, hitJButton, doubleJButton, standJButton, withdrawJButton
+    // EFFECTS:  render the JButtons when there should not be a Double option; add hitJButton, doubleJButton,
+    // standJButton, and withdrawJButton to this BlackJackGame JFrame; set the status of hitJButton and standJButton
+    // as "Showing"; set the status of doubleJButton and withdrawJButton as "Hiding"
+    private void addAllDealingStageJButtonsNoDoubleNoWithdrawHelper() {
+        hitJButton = new HitJButton(1172, 350);
+        hitJButton.setStatus("Showing");
+        add(hitJButton);
+        doubleJButton = new DoubleJButton(1172, 430);
+        doubleJButton.setStatus("Hiding");
+        add(doubleJButton);
+        standJButton = new StandJButton(1172, 510);
+        standJButton.setStatus("Showing");
+        add(standJButton);
+        withdrawJButton = new WithdrawJButton(1172, 590);
+        withdrawJButton.setStatus("Hiding");
+        add(withdrawJButton);
+    }
+
+    // MODIFIES: this, hitJButton, doubleJButton, standJButton, withdrawJButton
+    // EFFECTS:  render the JButtons when Player is 5-card Charlie and not reach Black Jack; add hitJButton,
+    // doubleJButton, standJButton, and withdrawJButton to this BlackJackGame JFrame; set the status of hitJButton and
+    // withdrawJButton as "Showing"; set the status of doubleJButton and standJButton as "Hiding"
+    private void addAllDealingStageJButtonsNoDoubleNoStandHelper() {
+        hitJButton = new HitJButton(1172, 350);
+        hitJButton.setStatus("Showing");
+        add(hitJButton);
+        doubleJButton = new DoubleJButton(1172, 430);
+        doubleJButton.setStatus("Hiding");
+        add(doubleJButton);
+        standJButton = new StandJButton(1172, 510);
+        standJButton.setStatus("Hiding");
+        add(standJButton);
+        withdrawJButton = new WithdrawJButton(1172, 590);
+        withdrawJButton.setStatus("Showing");
+        add(withdrawJButton);
+    }
+
+    // EFFECTS:  remove hitJButton, doubleJButton, standJButton, and withdrawJButton from this BlackJackGame JFrame
+    private void removeDealingStageAllJButtonsHelper() {
+        remove(hitJButton);
+        remove(doubleJButton);
+        remove(withdrawJButton);
+        remove(standJButton);
+    }
+
+    // MODIFIES: this, bettingAreaJLabel, playerInfoJLabel, playerInfoBoardJLabel
+    // EFFECTS:  render information components in the right-up corner of the JFrame during the Dealing Stage; add
+    // bettingAreaJLabel, playerInfoJLabel, and playerInfoBoardJLabel to this BlackJackGame JFrame; set the status of
+    // bettingAreaJLabel, playerInfoJLabel, and playerInfoBoardJLabel as "Showing"
+    private void addDealingStagePlayerInfoHelper() {
+        bettingAreaJLabel = new BettingAreaJLabel(gameState);
+        bettingAreaJLabel.setStatus("Showing");
+        add(bettingAreaJLabel);
+        playerInfoJLabel = new PlayerInfoTextJLabel(gameState);
+        playerInfoJLabel.setStatus("Showing");
+        add(playerInfoJLabel);
+        playerInfoBoardJLabel = new PlayerInfoBoardJLabel();
+        playerInfoBoardJLabel.setStatus("Showing");
+        add(playerInfoBoardJLabel);
+    }
+
+    // EFFECTS:  remove bettingAreaJLabel, playerInfoJLabel, and playerInfoBoardJLabel from this BlackJackGame JFrame
+    private void removeDealingStagePlayerInfoHelper() {
+        remove(bettingAreaJLabel);
+        remove(playerInfoJLabel);
+        remove(playerInfoBoardJLabel);
+    }
+
+    // Both Dealing Stage and Closing Stage Rendering Helpers
+
+    @SuppressWarnings("methodlength")
+    // MODIFIES: this, dealerCardsCounterJLabel, playerCardsCounterJLabel, dealerCardJLabel3, dealerCardJLabel4,
+    // dealerCardJLabel5, playerCardJLabel3, playerCardJLabel4, playerCardJLabel5, playerCardJLabel6, playerCardJLabel7,
+    // playerCardJLabel8, playerCardJLabel9, playerCardJLabel10, playerCardJLabel11
+    // EFFECTS:  help both the Dealing Stage and the Closing Stage automatically detect the change of both parties'
+    // cards, render all the cards and counters, and add Speeding Animation Effect to all the new cards except initial
+    // cards
+    private void addAllCardsAndCountersBothDealerAndPlayerAutoRenderHelper(GameState gameState) {
+        int dealerMovingIndex = gameState.getDealerCards().getList().size() - 1;
+        int playerMovingIndex = gameState.getPlayerCards().getList().size() - 1;
+        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 858, 4);
+        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 858, 3);
+        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 858, 2);
+        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
+        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
+        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
+        dealerCardsCounterJLabel.setStatus("Showing");
+        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
+        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
+        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
+        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
+        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
+        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
+        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
+        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
+        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
+        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
+        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
+        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
+        playerCardsCounterJLabel.setStatus("Showing");
+        switch (dealerMovingIndex) {
+            case 2:
+                dealerCardJLabel3.setCorY(0);
+                dealerCardJLabel3.setStatus("Moving Down");
+                break;
+            case 3:
+                dealerCardJLabel4.setCorY(0);
+                dealerCardJLabel4.setStatus("Moving Down");
+                break;
+            case 4:
+                dealerCardJLabel5.setCorY(0);
+                dealerCardJLabel5.setStatus("Moving Down");
+                break;
+        }
+        switch (playerMovingIndex) {
+            case 2:
+                playerCardJLabel3.setStatus("Moving Up");
+                break;
+            case 3:
+                playerCardJLabel4.setStatus("Moving Up");
+                break;
+            case 4:
+                playerCardJLabel5.setStatus("Moving Up");
+                break;
+            case 5:
+                playerCardJLabel6.setStatus("Moving Up");
+                break;
+            case 6:
+                playerCardJLabel7.setStatus("Moving Up");
+                break;
+            case 7:
+                playerCardJLabel8.setStatus("Moving Up");
+                break;
+            case 8:
+                playerCardJLabel9.setStatus("Moving Up");
+                break;
+            case 9:
+                playerCardJLabel10.setStatus("Moving Up");
+                break;
+            case 10:
+                playerCardJLabel11.setStatus("Moving Up");
+                break;
+        }
+        add(dealerCardJLabel5);
+        add(dealerCardJLabel4);
+        add(dealerCardJLabel3);
+        add(dealerCardJLabel2);
+        add(dealerCardJLabel1);
+        add(dealerCardsCounterJLabel);
+        add(playerCardJLabel11);
+        add(playerCardJLabel10);
+        add(playerCardJLabel9);
+        add(playerCardJLabel8);
+        add(playerCardJLabel7);
+        add(playerCardJLabel6);
+        add(playerCardJLabel5);
+        add(playerCardJLabel4);
+        add(playerCardJLabel3);
+        add(playerCardJLabel2);
+        add(playerCardJLabel1);
+        add(playerCardsCounterJLabel);
+    }
+
+    // EFFECTS:  stop the timers of all cards and counters, and remove all of them from this BlackJackGame JFrame
+    @SuppressWarnings("methodlength")
+    private void removeAllCardsAndCountersHelper() {
+        dealerCardJLabel5.stopTimer();
+        dealerCardJLabel4.stopTimer();
+        dealerCardJLabel3.stopTimer();
+        dealerCardJLabel2.stopTimer();
+        dealerCardJLabel1.stopTimer();
+        dealerCardsCounterJLabel.stopTimer();
+        playerCardJLabel11.stopTimer();
+        playerCardJLabel10.stopTimer();
+        playerCardJLabel9.stopTimer();
+        playerCardJLabel8.stopTimer();
+        playerCardJLabel7.stopTimer();
+        playerCardJLabel6.stopTimer();
+        playerCardJLabel5.stopTimer();
+        playerCardJLabel4.stopTimer();
+        playerCardJLabel3.stopTimer();
+        playerCardJLabel2.stopTimer();
+        playerCardJLabel1.stopTimer();
+        playerCardsCounterJLabel.stopTimer();
+        remove(dealerCardJLabel5);
+        remove(dealerCardJLabel4);
+        remove(dealerCardJLabel3);
+        remove(dealerCardJLabel2);
+        remove(dealerCardJLabel1);
+        remove(dealerCardsCounterJLabel);
+        remove(playerCardJLabel11);
+        remove(playerCardJLabel10);
+        remove(playerCardJLabel9);
+        remove(playerCardJLabel8);
+        remove(playerCardJLabel7);
+        remove(playerCardJLabel6);
+        remove(playerCardJLabel5);
+        remove(playerCardJLabel4);
+        remove(playerCardJLabel3);
+        remove(playerCardJLabel2);
+        remove(playerCardJLabel1);
+        remove(playerCardsCounterJLabel);
+    }
+
+    // Closing Stage Rendering Helpers
+
+    // EFFECTS:  remove newRoundJButton, saveGameRecordJButton, and mainMenuJButton from this BlackJackGame JFrame
+    private void removeAllClosingJButtonsHelper() {
+        remove(newRoundJButton);
+        remove(saveGameRecordJButton);
+        remove(mainMenuJButton);
+    }
+
+
+    @SuppressWarnings("methodlength")
+    // MODIFIES: this, dealerCardsCounterJLabel, playerCardsCounterJLabel, dealerCardJLabel3, dealerCardJLabel4,
+    // dealerCardJLabel5
+    // EFFECTS:  help the Game Phase 5 (Closing Stage) automatically detect the change of Dealer's cards, render all the
+    // cards and counters, and add Speeding Animation Effect to all the new cards of Dealer except initial cards
+    private void addAllCardsAndCountersOnlyDealerAutoRenderHelper(GameState gameState) {
+        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 0, 4);
+        dealerCardJLabel5.setStatus("Moving Down");
+        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 0, 3);
+        dealerCardJLabel4.setStatus("Moving Down");
+        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 0, 2);
+        dealerCardJLabel3.setStatus("Moving Down");
+        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
+        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
+        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
+        dealerCardsCounterJLabel.setStatus("Showing");
+        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
+        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
+        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
+        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
+        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
+        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
+        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
+        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
+        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
+        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
+        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
+        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
+        playerCardsCounterJLabel.setStatus("Showing");
+        add(dealerCardJLabel5);
+        add(dealerCardJLabel4);
+        add(dealerCardJLabel3);
+        add(dealerCardJLabel2);
+        add(dealerCardJLabel1);
+        add(dealerCardsCounterJLabel);
+        add(playerCardJLabel11);
+        add(playerCardJLabel10);
+        add(playerCardJLabel9);
+        add(playerCardJLabel8);
+        add(playerCardJLabel7);
+        add(playerCardJLabel6);
+        add(playerCardJLabel5);
+        add(playerCardJLabel4);
+        add(playerCardJLabel3);
+        add(playerCardJLabel2);
+        add(playerCardJLabel1);
+        add(playerCardsCounterJLabel);
+    }
+
+    @SuppressWarnings("methodlength")
+    // MODIFIES: this, dealerCardsCounterJLabel, playerCardsCounterJLabel
+    // EFFECTS:  help the Game Phase 5 (Closing Stage) render all the counters and cards held by the both parties
+    private void addAllCardsAndCountersNormalRenderHelper(GameState gameState) {
+        dealerCardJLabel5 = new DealerCardJLabel5(gameState, 719, -740, 858, 4);
+        dealerCardJLabel4 = new DealerCardJLabel4(gameState, 693, -740, 858, 3);
+        dealerCardJLabel3 = new DealerCardJLabel3(gameState, 667, -740, 858, 2);
+        dealerCardJLabel2 = new DealerCardJLabel2(gameState, 641, -740, 858,1);
+        dealerCardJLabel1 = new DealerCardJLabel1(gameState,615, -740, 858, 0);
+        dealerCardsCounterJLabel = new DealerCardsCounterJLabel(gameState, 660, 25);
+        dealerCardsCounterJLabel.setStatus("Showing");
+        playerCardJLabel11 = new PlayerCardJLabel11(gameState, 875, 465, 816, 10);
+        playerCardJLabel10 = new PlayerCardJLabel10(gameState, 849, 465, 816, 9);
+        playerCardJLabel9 = new PlayerCardJLabel9(gameState, 823, 465, 816, 8);
+        playerCardJLabel8 = new PlayerCardJLabel8(gameState, 797, 465, 816, 7);
+        playerCardJLabel7 = new PlayerCardJLabel7(gameState, 771, 465, 816, 6);
+        playerCardJLabel6 = new PlayerCardJLabel6(gameState, 745, 465, 816, 5);
+        playerCardJLabel5 = new PlayerCardJLabel5(gameState, 719, 465, 816, 4);
+        playerCardJLabel4 = new PlayerCardJLabel4(gameState, 693, 465, 816, 3);
+        playerCardJLabel3 = new PlayerCardJLabel3(gameState,667, 465, 816, 2);
+        playerCardJLabel2 = new PlayerCardJLabel2(gameState, 641, 465, 816,1);
+        playerCardJLabel1 = new PlayerCardJLabel1(gameState, 615, 465, 816, 0);
+        playerCardsCounterJLabel = new PlayerCardsCounterJLabel(gameState, 660, 720);
+        playerCardsCounterJLabel.setStatus("Showing");
+        add(dealerCardJLabel5);
+        add(dealerCardJLabel4);
+        add(dealerCardJLabel3);
+        add(dealerCardJLabel2);
+        add(dealerCardJLabel1);
+        add(dealerCardsCounterJLabel);
+        add(playerCardJLabel11);
+        add(playerCardJLabel10);
+        add(playerCardJLabel9);
+        add(playerCardJLabel8);
+        add(playerCardJLabel7);
+        add(playerCardJLabel6);
+        add(playerCardJLabel5);
+        add(playerCardJLabel4);
+        add(playerCardJLabel3);
+        add(playerCardJLabel2);
+        add(playerCardJLabel1);
+        add(playerCardsCounterJLabel);
+    }
+
 
     public static void main(String[] args) {
         new BlackJackGame();
