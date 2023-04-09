@@ -34,3 +34,17 @@ In the context of a Blackjack application:
 - You can delete a game record by clicking ***Resume Game*** at the main menu, choosing a typical game record from the scroll panel, and clicking the ***Delete Game Record***
 - You can render the player ranking by clicking ***Player Ranking*** at the main menu
 - You can exit the game by clicking ***Exit Game*** at the main menu
+
+# Phase 4: Task 2
+- Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Dealer.
+- Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Dealer.
+- Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Player.
+- Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Player.
+- Sun Apr 09 12:45:21 PDT 2023 Benny is added to the game records list.
+- Sun Apr 09 12:45:24 PDT 2023 A new card dealt to the Dealer.
+- Sun Apr 09 12:45:24 PDT 2023 A new card dealt to the Dealer.
+- Sun Apr 09 12:45:24 PDT 2023 A new card dealt to the Player.
+- Sun Apr 09 12:45:24 PDT 2023 A new card dealt to the Player.
+- Sun Apr 09 12:45:26 PDT 2023 A new card dealt to the Player.
+- Sun Apr 09 12:45:29 PDT 2023 Benny's old game record is overwritten by the new one.
+- Sun Apr 09 12:45:33 PDT 2023 Benny is removed from the game records list.

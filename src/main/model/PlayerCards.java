@@ -20,12 +20,14 @@ public class PlayerCards {
     // EFFECTS:  add a new card to Player's Cards
     public void addPlayerCard(Card card) {
         playerCards.add(card);
+        EventLog.getInstance().logEvent(new Event("A new card dealt to the Player."));
     }
 
     // MODIFIES: this
     // EFFECTS:  clear all the existing cards on Player's hand
     public void clearPlayerCards() {
         playerCards.clear();
+        EventLog.getInstance().logEvent(new Event("All cards of the Player are cleared up."));
     }
 
     // EFFECTS:  sum the value of all the cards on Player's hand; Poker A's value could be 1 or 11; the exact value of

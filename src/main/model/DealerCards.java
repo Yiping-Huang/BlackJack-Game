@@ -20,12 +20,14 @@ public class DealerCards {
     // EFFECTS:  add a new card to Dealer's Cards
     public void addDealerCard(Card card) {
         dealerCards.add(card);
+        EventLog.getInstance().logEvent(new Event("A new card dealt to the Dealer."));
     }
 
     // MODIFIES: this
     // EFFECTS:  clear all the existing cards on Dealer's hand
     public void clearDealerCards() {
         dealerCards.clear();
+        EventLog.getInstance().logEvent(new Event("All cards of the Dealer are cleared up."));
     }
 
     // REQUIRES: the length of dealCards is larger than or equal to 2

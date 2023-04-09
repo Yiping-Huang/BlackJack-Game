@@ -24,6 +24,7 @@ public class GameRecords implements Iterable<Player> {
     // MODIFIES: this
     // EFFECTS:  add a new player to the list
     public void addRecord(Player player) {
+        EventLog.getInstance().logEvent(new Event(player.getName() + " is added to the game records list."));
         players.add(player);
     }
 
@@ -31,6 +32,8 @@ public class GameRecords implements Iterable<Player> {
     // MODIFIES: this
     // EFFECTS:  remove a specific player from the list according to the recordIndex
     public void deleteRecord(int recordIndex) {
+        EventLog.getInstance().logEvent(new Event(players.get(recordIndex).getName()
+                + " is removed from the game records list."));
         players.remove(recordIndex);
     }
 
@@ -38,6 +41,8 @@ public class GameRecords implements Iterable<Player> {
     // MODIFIES: this
     // EFFECTS:  replace the old player with a new player of the same name
     public void saveOldRecord(int currentGameRecordIndex, Player player) {
+        EventLog.getInstance().logEvent(new Event(player.getName()
+                + "'s old game record is overwritten by the new one."));
         players.set(currentGameRecordIndex, player);
     }
 
