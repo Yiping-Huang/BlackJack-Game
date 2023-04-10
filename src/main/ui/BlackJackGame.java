@@ -5,17 +5,18 @@ import model.Event;
 import persistence.JsonReader;
 import persistence.JsonWriter;
 import ui.background.*;
+import ui.gamephases.dealercards.*;
 import ui.gamephases.information.*;
 import ui.gamephases.operationbuttons.*;
-import ui.gamephases.cards.*;
-import ui.navigationphase.mainmenu.*;
-import ui.navigationphase.backtomainmenu.BackToMainMenuJButton;
-import ui.navigationphase.playerrankingpage.*;
-import ui.navigationphase.resumegamepage.*;
-import ui.navigationphase.startnewgamepage.StartNewGameJTextField;
-import ui.navigationphase.startnewgamepage.StartNewGameHeaderJLabel;
-import ui.navigationphase.mainmenu.StartNewGameJButton;
-import ui.navigationphase.startnewgamepage.SubmitNewPlayerJButton;
+import ui.gamephases.playercards.*;
+import ui.navigation.mainmenu.*;
+import ui.navigation.backtomainmenu.BackToMainMenuJButton;
+import ui.navigation.playerrankingpage.*;
+import ui.navigation.resumegamepage.*;
+import ui.navigation.startnewgamepage.StartNewGameJTextField;
+import ui.navigation.startnewgamepage.StartNewGameHeaderJLabel;
+import ui.navigation.mainmenu.StartNewGameJButton;
+import ui.navigation.startnewgamepage.SubmitNewPlayerJButton;
 import ui.soundeffect.BackgroundMusic;
 import ui.soundeffect.Clicking;
 
@@ -34,13 +35,13 @@ import java.nio.file.Paths;
 public class BlackJackGame extends JFrame {
     // General
     private int panelIndex;
-    private GameRecords gameRecords;
     private boolean hasClickedRecord;
     private int currentGameRecordIndex;
     private boolean loadedGameRecord;
+    private GameState gameState;
+    private GameRecords gameRecords;
     private final Player placeHolder = new Player("Delete It", 100, 0);
     private Player currentPlayer;
-    private GameState gameState;
 
     // Following fields are typically used for GUI
     private final Color listBackground = new Color(255, 255, 224);
@@ -82,7 +83,7 @@ public class BlackJackGame extends JFrame {
     private PlayerCardsCounterJLabel playerCardsCounterJLabel;
     // Game Betting Stage JButton Components (Phase 0 and Phase 1)
     private RaiseBetJButton raiseBetJButton;
-    private AllInButton allInButton;
+    private AllInJButton allInJButton;
     private StopBettingJButton stopBettingJButton;
     // Game Dealing Stage JButton Components (Phase 2 to Phase 4)
     private InsuranceJButton insuranceJButton;
@@ -458,7 +459,7 @@ public class BlackJackGame extends JFrame {
                 renderGamePhase1(this.gameState, this.gameRecords, this.loadedGameRecord, this.currentGameRecordIndex);
             }
         });
-        allInButton.addActionListener(e -> {
+        allInJButton.addActionListener(e -> {
             clicking.playMusic();
             if (this.gameState.getPlayerAssets() >= 100 && !played) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
@@ -551,7 +552,7 @@ public class BlackJackGame extends JFrame {
                 renderGamePhase2(this.gameState, this.gameRecords, this.loadedGameRecord, this.currentGameRecordIndex);
             }
         });
-        allInButton.addActionListener(e -> {
+        allInJButton.addActionListener(e -> {
             clicking.playMusic();
             if (this.gameState.getPlayerAssets() >= 100) {
                 this.gameState.setBettingBox(this.gameState.getBettingBox() + this.gameState.getPlayerAssets());
@@ -1301,9 +1302,9 @@ public class BlackJackGame extends JFrame {
         raiseBetJButton = new RaiseBetJButton(1172,350);
         raiseBetJButton.setStatus("Showing");
         add(raiseBetJButton);
-        allInButton = new AllInButton(1172,430);
-        allInButton.setStatus("Showing");
-        add(allInButton);
+        allInJButton = new AllInJButton(1172,430);
+        allInJButton.setStatus("Showing");
+        add(allInJButton);
         stopBettingJButton = new StopBettingJButton(1172,510);
         stopBettingJButton.setStatus("Hiding");
         add(stopBettingJButton);
@@ -1328,9 +1329,9 @@ public class BlackJackGame extends JFrame {
         raiseBetJButton = new RaiseBetJButton(1172,350);
         raiseBetJButton.setStatus("Delay Showing");
         add(raiseBetJButton);
-        allInButton = new AllInButton(1172,430);
-        allInButton.setStatus("Delay Showing");
-        add(allInButton);
+        allInJButton = new AllInJButton(1172,430);
+        allInJButton.setStatus("Delay Showing");
+        add(allInJButton);
         stopBettingJButton = new StopBettingJButton(1172,510);
         stopBettingJButton.setStatus("Hiding");
         add(stopBettingJButton);
@@ -1354,9 +1355,9 @@ public class BlackJackGame extends JFrame {
         raiseBetJButton = new RaiseBetJButton(1172,350);
         raiseBetJButton.setStatus("Showing");
         add(raiseBetJButton);
-        allInButton = new AllInButton(1172,430);
-        allInButton.setStatus("Showing");
-        add(allInButton);
+        allInJButton = new AllInJButton(1172,430);
+        allInJButton.setStatus("Showing");
+        add(allInJButton);
         stopBettingJButton = new StopBettingJButton(1172,510);
         stopBettingJButton.setStatus("Showing");
         add(stopBettingJButton);
@@ -1370,13 +1371,13 @@ public class BlackJackGame extends JFrame {
         playerInfoBoardJLabel.stopTimer();
         bettingAreaJLabel.stopTimer();
         raiseBetJButton.stopTimer();
-        allInButton.stopTimer();
+        allInJButton.stopTimer();
         stopBettingJButton.stopTimer();
         remove(playerInfoJLabel);
         remove(playerInfoBoardJLabel);
         remove(bettingAreaJLabel);
         remove(raiseBetJButton);
-        remove(allInButton);
+        remove(allInJButton);
         remove(stopBettingJButton);
     }
 

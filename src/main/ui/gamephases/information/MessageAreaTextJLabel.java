@@ -28,10 +28,6 @@ public class MessageAreaTextJLabel extends JLabel implements ActionListener {
         timer.start();
     }
 
-    public void stopTimer() {
-        timer.stop();
-    }
-
     // REQUIRES: messageIndex is among [0, 13]
     // EFFECTS:  display corresponding message according to the given messageIndex
     @SuppressWarnings("methodlength")
@@ -91,6 +87,10 @@ public class MessageAreaTextJLabel extends JLabel implements ActionListener {
 
     public void setStatus(String s) {
         status = s;
+    }
+
+    public void stopTimer() {
+        timer.stop();
     }
 
     @Override

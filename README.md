@@ -48,3 +48,13 @@ In the context of a Blackjack application:
 - Sun Apr 09 12:45:26 PDT 2023 A new card dealt to the Player.
 - Sun Apr 09 12:45:29 PDT 2023 Benny's old game record is overwritten by the new one.
 - Sun Apr 09 12:45:33 PDT 2023 Benny is removed from the game records list.
+
+# Phase 4: Task 3
+- When you look at the UML Diagram, you will notice there are many code duplicates among dealerCard classes and playersCard 
+classes. The reason why I did not let them extend the abstract classes that I have already designed is that when they extend 
+the same class in Java Swing, they share the same timer. However, in the context of this BlackJackGame, they shall not share
+the same timer so that they must be separate classes despite the code duplicates.
+- If I want to adhere to the Single Responsibility Principle more strictly, I would call for the Booing class and Cheering class 
+directly in the BlackJackGame Class since the MessageAreaTextJLabel class shall only act like a message rendering manager. 
+The reason why I chose to couple them together is that it is easier for other programmers to understand when the text instructions 
+are coupled with the corresponding sound effect.

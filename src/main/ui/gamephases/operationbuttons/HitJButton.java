@@ -2,8 +2,6 @@ package ui.gamephases.operationbuttons;
 
 // This class represent a button that will be used to call for hit action.
 
-import ui.abstractclasses.OperationJButton;
-
 public class HitJButton extends OperationJButton {
 
     // EFFECTS: construct a hit button
