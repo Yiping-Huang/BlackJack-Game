@@ -50,7 +50,7 @@ In the context of a Blackjack application:
 - Sun Apr 09 12:45:33 PDT 2023 Benny is removed from the game records list.
 
 # Phase 4: Task 3
-- When you look at the UML Diagram, you will notice there are many code duplicates among dealerCard classes and playersCard 
+- If you look at my code in detail, you will notice there are many code duplicates among dealerCard classes and playersCard 
 classes. The reason why I did not let them extend the abstract classes that I have already designed is that when they extend 
 the same class in Java Swing, they share the same timer. However, in the context of this BlackJackGame, they shall not share
 the same timer so that they must be separate classes despite the code duplicates.
