@@ -116,6 +116,7 @@ public class BlackJackGame extends JFrame {
 
 
     // EFFECTS: constructs BlackJackGame and initialize the input and the game records
+    @SuppressWarnings("methodlength")
     public BlackJackGame() {
         // Frame title setting
         super("Blackjack Game");
@@ -125,6 +126,7 @@ public class BlackJackGame extends JFrame {
         Color colorBackground = new Color(51, 153, 51);
         setBackground(colorBackground);
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+        setResizable(false);
         setLocation((screen.width - getWidth()) / 2, (screen.height - getHeight()) / 2); // Center on the screen
         // Set Sound Effect
         backgroundMusic = new BackgroundMusic();
