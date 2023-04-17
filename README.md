@@ -2,9 +2,7 @@
 ## A simplified version of the *Blackjack* game at casinos
 - This application is named as Blackjack. It is literally a simplified version of Blackjack game which simulates
 the classic casino banking game **without the splitting practice**. 
-- The user will play the role of ***player*** and the program will play the role of ***dealer***. Any user looking for simulated gambling will play this game. 
-- I find this application interesting because this game is more complex than a blog program and the GUI design for card game is practical for my 
-current knowledge of Java.Swing. I personally also like playing Blackjack game.
+- The user will play the role of ***player*** and the program will play the role of ***dealer***. Any user looking for simulated gambling will play this game.
 
 ## User Stories
 In the context of a Blackjack application:
@@ -26,7 +24,7 @@ In the context of a Blackjack application:
 - As a user, I want to be able to ***save record*** which means adding a new game record to the game records list if this is a new player or overwriting a typical game record in the game records list if I loaded this game record in the beginning
 - As a user, I want to be able to go back to ***main menu*** which means ending all the game phase rendering and render the original navigation phase
 
-# Instructions for Grader
+# Instructions for User
 - You can add a new game record to the game records list by clicking ***Start New Game*** at the main menu, typing in a random name, clicking ***Submit*** to create a new player, and clicking ***Save Record*** at the end of each round of game if you do not lose all your assets
 - You can add new cards to player's cards by clicking ***Hit*** or ***Double*** during the dealing stage
 - You can save the game progress by clicking ***Save Record*** at the end of each round of game if you do not lose all your assets
@@ -35,7 +33,7 @@ In the context of a Blackjack application:
 - You can render the player ranking by clicking ***Player Ranking*** at the main menu
 - You can exit the game by clicking ***Exit Game*** at the main menu
 
-# Phase 4: Task 2
+# EventLog Sample
 - Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Dealer.
 - Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Dealer.
 - Sun Apr 09 12:45:16 PDT 2023 A new card dealt to the Player.
@@ -48,13 +46,3 @@ In the context of a Blackjack application:
 - Sun Apr 09 12:45:26 PDT 2023 A new card dealt to the Player.
 - Sun Apr 09 12:45:29 PDT 2023 Benny's old game record is overwritten by the new one.
 - Sun Apr 09 12:45:33 PDT 2023 Benny is removed from the game records list.
-
-# Phase 4: Task 3
-- If you look at my code in detail, you will notice there are many code duplicates among dealerCard classes and playersCard 
-classes. The reason why I did not let them extend the abstract classes that I have already designed is that when they extend 
-the same class in Java Swing, they share the same timer. However, in the context of this BlackJackGame, they shall not share
-the same timer so that they must be separate classes despite the code duplicates.
-- If I want to adhere to the Single Responsibility Principle more strictly, I would call for the Booing class and Cheering class 
-directly in the BlackJackGame Class since the MessageAreaTextJLabel class shall only act like a message rendering manager. 
-The reason why I chose to couple them together is that it is easier for other programmers to understand when the text instructions 
-are coupled with the corresponding sound effect.
