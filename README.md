@@ -4,6 +4,7 @@
 the classic casino banking game **without the splitting practice**. 
 - The user will play the role of ***player*** and the program will play the role of ***dealer***. Any user looking for simulated gambling will play this game.
 - This application can be run on both Windows and macOS.
+- Hyperlink for the video demo https://youtu.be/nT6V5sUKYuE
 
 # Instructions for User
 - You can launch the BlackJack Game by opening the ***BlackJackGame-Launcher.jar*** in the root folder.
